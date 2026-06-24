@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- viewport-fit=cover ensures it goes completely behind the camera notch/punch-hole -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>RC Premium Controller</title>
+<style>
+/* ─── BASE & PREMIUM UI ─── */
+:root {
+  --bg-color: #050914;
+  --panel-bg: rgba(15, 23, 42, 0.75);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --neon-blue: #00e5ff;
+  --neon-green: #00ff88;
+  --neon-red: #ff3355;
+  --neon-orange: #ff9900;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body {
+  width:100vw; height:100vh; background: var(--bg-color); overflow:hidden;
+  font-family: 'Courier New', monospace; user-select: none;
+}
+body::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(circle at center, rgba(0,229,255,0.05) 0%, transparent 60%),
+                    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 100% 100%, 40px 40px, 40px 40px; z-index: 0;
+}
+
+/* ─── TOPBAR (With Safe Area for Notch) ─── */
+#topbar {
+  position:fixed; top:0; left:0; right:0; height: max(56px, env(safe-area-inset-top));
+  display:flex; align-items:center; justify-content:space-between;
+  padding: env(safe-area-inset-top) max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left));
+  background: var(--panel-bg); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-color); z-index:200; box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+}
+#connect-area { display:flex; align-items:center; gap:10px; }
+#dot { width:10px; height:10px; border-radius:50%; background:var(--neon-red); box-shadow:0 0 10px var(--neon-red); transition:all .3s; }
+#dot.on { background:var(--neon-green); box-shadow:0 0 12px var(--neon-green); }
+#conn-label { font-size:11px; letter-spacing:2px; color:#aaa; font-weight:bold; display:none; }
+@media (min-width: 600px) { #conn-label { display:block; } }
+#conn-btn {
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2);
+  color:#ccc; padding:6px 14px; font-family:'Courier New',monospace; font-size:11px;
+  letter-spacing:2px; cursor:pointer; border-radius:6px; font-weight:bold; transition:all .2s;
+}
+#conn-btn:active { transform: scale(0.95); }
+#conn-btn.on { border-color:var(--neon-red); color:var(--neon-red); background: rgba(255,51,85,0.1); }
+
+/* ─── SPEED & CONTROLS ─── */
+#speed-bar { display:flex; align-items:center; gap:10px; flex: 1; justify-content: center; }
+#speed-bar label { font-size:10px; letter-spacing:2px; color:#888; font-weight:bold;}
+#speed-slider {
+  -webkit-appearance:none; appearance:none; width: 100%; max-width: 150px; height:4px;
+  background: rgba(255,255,255,0.1); border-radius:2px; outline:none;
+}
+#speed-slider::-webkit-slider-thumb {
+  -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+  background:var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); cursor:pointer;
+}
+#speed-val { font-size:11px; color:var(--neon-blue); min-width:32px; font-weight:bold;}
+
+#top-right { display:flex; align-items:center; gap:10px; }
+.icon-btn {
+  width:40px; height:40px; border-radius:8px; border:1px solid var(--border-color);
+  background:rgba(255,255,255,0.03); color:#888; display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:all .2s; touch-action:manipulation;
+}
+.icon-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
+.icon-btn:active { transform: scale(0.9); }
+.icon-btn.active { border-color:var(--neon-orange); color:var(--neon-orange); box-shadow: inset 0 0 10px rgba(255,153,0,0.2); }
+
+/* ─── SPEED DISPLAY (CENTER) ─── */
+#speed-display { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; pointer-events:none; z-index:10; }
+#speed-num { font-size:80px; font-weight:bold; color: rgba(255,255,255,0.05); line-height:1; transition:color .2s, text-shadow .2s; }
+#speed-num.fwd { color:var(--neon-green); text-shadow:0 0 40px rgba(0,255,136,.3); }
+#speed-num.bwd { color:var(--neon-red); text-shadow:0 0 40px rgba(255,51,85,.3); }
+#speed-lbl { font-size:11px; letter-spacing:4px; color:rgba(255,255,255,0.2); margin-top:8px; font-weight:bold;}
+
+/* ─── DRAGGABLE WIDGETS ─── */
+.widget { position:fixed; z-index:50; touch-action:none; display: flex; align-items: center; justify-content: center;}
+.widget.editing { cursor:move; z-index: 200; animation: pulseEdit 1.5s infinite; }
+@keyframes pulseEdit { 0% { filter: drop-shadow(0 0 5px var(--neon-orange)); } 50% { filter: drop-shadow(0 0 15px var(--neon-orange)); } 100% { filter: drop-shadow(0 0 5px var(--neon-orange)); } }
+.widget.editing::after {
+  content:'SWAP ICON / MOVE'; position:absolute; top: -20px; left:50%; transform:translateX(-50%);
+  font-size: 8px; background: var(--neon-orange); color:#000; padding:2px 6px; border-radius:4px; font-weight:bold; white-space:nowrap; pointer-events:none;
+}
+
+/* ─── DYNAMIC BUTTON STYLES (Based on data-icon) ─── */
+.control-btn {
+  border: 2px solid rgba(255,255,255,0.1);
+  background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(0,0,0,0.5));
+  backdrop-filter: blur(5px); box-shadow: 4px 4px 10px rgba(0,0,0,0.5), inset 1px 1px 2px rgba(255,255,255,0.1);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  cursor:pointer; transition:all .1s; user-select:none; color: #888;
+}
+.control-btn svg { stroke: currentColor; fill: none; transition: all .1s; pointer-events:none; }
+.btn-label { font-size: 9px; letter-spacing: 2px; font-weight: bold; pointer-events:none; }
+
+/* Styles for "Left/Right" Icons */
+.widget[data-icon="left"] .control-btn, .widget[data-icon="right"] .control-btn {
+  width: 75px; height: 75px; border-radius: 50%; color: var(--neon-blue);
+}
+.widget[data-icon="left"] .control-btn svg, .widget[data-icon="right"] .control-btn svg { width: 32px; height: 32px; }
+.widget[data-icon="left"] .control-btn.pressed, .widget[data-icon="right"] .control-btn.pressed { 
+  border-color: var(--neon-blue); background: rgba(0,229,255,0.1);
+  box-shadow: 0 0 25px rgba(0,229,255,0.4), inset 0 0 10px rgba(0,229,255,0.2); transform: scale(0.95);
+}
+
+/* Styles for "Gas" Icon */
+.widget[data-icon="gas"] .control-btn { width: 70px; height: 90px; border-radius: 12px; color: var(--neon-green); }
+.widget[data-icon="gas"] .control-btn svg { width: 28px; height: 40px; }
+.widget[data-icon="gas"] .control-btn.pressed { 
+  border-color: var(--neon-green); background: rgba(0,255,136,0.1);
+  box-shadow: 0 0 30px rgba(0,255,136,0.4), inset 0 0 15px rgba(0,255,136,0.2); transform: translateY(4px) scale(0.95);
+}
+
+/* Styles for "Brake" Icon */
+.widget[data-icon="brake"] .control-btn { width: 85px; height: 90px; border-radius: 12px; color: var(--neon-red); }
+.widget[data-icon="brake"] .control-btn svg { width: 40px; height: 28px; }
+.widget[data-icon="brake"] .control-btn.pressed { 
+  border-color: var(--neon-red); background: rgba(255,51,85,0.1);
+  box-shadow: 0 0 30px rgba(255,51,85,0.4), inset 0 0 15px rgba(255,51,85,0.2); transform: translateY(4px) scale(0.95);
+}
+
+/* ─── GYRO PANEL ─── */
+#gyro-panel {
+  position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
+  background: var(--panel-bg); backdrop-filter: blur(10px);
+  border:1px solid var(--border-color); border-radius:12px;
+  padding:16px; display:none; flex-direction:column; align-items:center; gap:12px;
+  z-index:150; min-width:220px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+#gyro-panel.show { display:flex; }
+#gyro-header { display: flex; justify-content: space-between; width: 100%; align-items: center;}
+#gyro-status { display:flex; align-items:center; gap:8px; }
+#gyro-dot { width:8px; height:8px; border-radius:50%; background:#444; }
+#gyro-dot.active { background:var(--neon-green); box-shadow:0 0 10px var(--neon-green); }
+#gyro-dot.error { background:var(--neon-red); box-shadow:0 0 10px var(--neon-red); }
+#gyro-txt { font-size:10px; letter-spacing:2px; color:#fff; font-weight:bold;}
+
+/* Visual Level Indicator */
+#gyro-level-bg {
+  width: 100%; height: 8px; background: rgba(0,0,0,0.5); border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.1); position: relative; overflow: hidden;
+}
+#gyro-level-indicator {
+  position: absolute; top: 0; left: 50%; width: 20px; height: 100%;
+  background: var(--neon-blue); margin-left: -10px; border-radius: 4px;
+  box-shadow: 0 0 10px var(--neon-blue); transition: transform 0.1s ease-out;
+}
+#gyro-level-bg::after { content:''; position:absolute; top:0; left:50%; width:2px; height:100%; background:rgba(255,255,255,0.5); transform:translateX(-50%);}
+#gyro-tilt { font-size:11px; color:#aaa; letter-spacing:1px; font-weight:bold;}
+.panel-btn {
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff;
+  padding:8px 16px; font-family:'Courier New',monospace; font-size:10px; letter-spacing:2px;
+  cursor:pointer; border-radius:6px; text-transform:uppercase; transition:all .2s; font-weight:bold;
+}
+.panel-btn:active { background: rgba(0,229,255,0.2); border-color: var(--neon-blue); color:var(--neon-blue); }
+
+/* ─── INDICATORS ─── */
+#indicators { 
+  position:fixed; bottom: max(12px, env(safe-area-inset-bottom)); 
+  left:50%; transform:translateX(-50%); display:flex; gap:20px; z-index:10; pointer-events:none; 
+}
+.ind { font-size:9px; letter-spacing:3px; color:rgba(255,255,255,0.2); display:flex; align-items:center; gap:6px; font-weight:bold;}
+.ind-dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.1); transition:all .2s; }
+.ind.active { color:var(--neon-green); text-shadow:0 0 5px rgba(0,255,136,0.5); }
+.ind.active .ind-dot { background:var(--neon-green); box-shadow:0 0 8px var(--neon-green); }
+.ind.rev.active { color:var(--neon-red); text-shadow:0 0 5px rgba(255,51,85,0.5); }
+.ind.rev.active .ind-dot { background:var(--neon-red); box-shadow:0 0 8px var(--neon-red); }
+
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div id="connect-area">
+    <div id="dot"></div>
+    <span id="conn-label">RC DISCONNECTED</span>
+    <button id="conn-btn" onclick="toggleConnect()">CONNECT</button>
+  </div>
+
+  <div id="speed-bar">
+    <label>PWR</label>
+    <input type="range" id="speed-slider" min="20" max="100" value="70" oninput="updateSpeed(this.value)">
+    <span id="speed-val">70%</span>
+  </div>
+
+  <div id="top-right">
+    <button class="icon-btn" id="gyro-btn" onclick="toggleGyroPanel()" title="Gyroscope">
+      <svg viewBox="0 0 24 24"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z"/><path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"/><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>
+    </button>
+    <button class="icon-btn" id="edit-btn" onclick="toggleEdit()" title="Edit Layout">
+      <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    </button>
+    <button class="icon-btn" id="fs-btn" onclick="goFullscreen()" title="Fullscreen">
+      <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+    </button>
+  </div>
+</div>
+
+<div id="speed-display">
+  <div id="speed-num">0</div>
+  <div id="speed-lbl">THROTTLE</div>
+</div>
+
+<!-- GYRO PANEL -->
+<div id="gyro-panel">
+  <div id="gyro-header">
+    <div id="gyro-status">
+      <div id="gyro-dot"></div>
+      <span id="gyro-txt">GYRO OFF</span>
+    </div>
+    <button class="panel-btn" onclick="toggleGyroState()" id="gyro-toggle-btn">START</button>
+  </div>
+  <div id="gyro-level-bg"><div id="gyro-level-indicator"></div></div>
+  <div id="gyro-tilt">TILT: 0°</div>
+  <button class="panel-btn" style="width:100%; margin-top:5px;" onclick="calibrateGyro()" id="calib-btn">SET CENTER</button>
+</div>
+
+<!-- 
+  DRAGGABLE WIDGETS
+  These function IDs never change. Only their "data-icon" attribute changes when swapped.
+  So if you put the Gas icon into "func-brake", it will still trigger the Brake function!
+-->
+<div class="widget" id="func-left" data-icon="left" style="bottom: 40px; left: 30px;">
+  <div class="control-btn"></div>
+</div>
+
+<div class="widget" id="func-right" data-icon="right" style="bottom: 40px; left: 120px;">
+  <div class="control-btn"></div>
+</div>
+
+<div class="widget" id="func-brake" data-icon="brake" style="bottom: 40px; right: 120px;">
+  <div class="control-btn"></div>
+</div>
+
+<div class="widget" id="func-gas" data-icon="gas" style="bottom: 40px; right: 30px;">
+  <div class="control-btn"></div>
+</div>
+
+<div id="indicators">
+  <div class="ind" id="ind-fwd">  <div class="ind-dot"></div>FWD</div>
+  <div class="ind" id="ind-left"> <div class="ind-dot"></div>LEFT</div>
+  <div class="ind" id="ind-right"><div class="ind-dot"></div>RIGHT</div>
+  <div class="ind rev" id="ind-rev">  <div class="ind-dot"></div>REV</div>
+</div>
+
+<script>
+// ─── ICON RENDERER SYSTEM ──────────────────────────────────────────
+const ICONS = {
+  'left': `<svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>`,
+  'right': `<svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>`,
+  'brake': `<svg viewBox="0 0 24 24"><path d="M4 7h16a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="6" y1="15" x2="18" y2="15"/></svg><span class="btn-label">BRAKE</span>`,
+  'gas': `<svg viewBox="0 0 24 24"><path d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><line x1="10" y1="7" x2="14" y2="7"/><line x1="10" y1="12" x2="14" y2="12"/><line x1="10" y1="17" x2="14" y2="17"/></svg><span class="btn-label">GAS</span>`
+};
+
+function renderIcons() {
+  document.querySelectorAll('.widget').forEach(w => {
+    const type = w.getAttribute('data-icon');
+    if(ICONS[type]) w.querySelector('.control-btn').innerHTML = ICONS[type];
+  });
+}
+
+// ─── BLE LOGIC ──────────────────────────────────
+const SVC_UUID  = '12345678-1234-1234-1234-123456789abc';
+const CHAR_UUID = 'abcdefab-cdef-abcd-efab-cdefabcdefab';
+let bleChar=null, bleDevice=null, connected=false, sendTimer=null;
+
+async function toggleConnect(){
+  if(connected){bleDevice && bleDevice.gatt.disconnect(); return;}
+  try{
+    bleDevice = await navigator.bluetooth.requestDevice({filters:[{name:'RC-Car'}], optionalServices:[SVC_UUID]});
+    bleDevice.addEventListener('gattserverdisconnected', onDisc);
+    const srv = await bleDevice.gatt.connect();
+    const svc = await srv.getPrimaryService(SVC_UUID);
+    bleChar = await svc.getCharacteristic(CHAR_UUID);
+    onConn();
+  }catch(e){console.log(e);}
+}
+
+function onConn(){
+  connected=true;
+  document.getElementById('dot').classList.add('on');
+  document.getElementById('conn-label').textContent='RC CONNECTED';
+  document.getElementById('conn-btn').textContent='DISCONNECT';
+  document.getElementById('conn-btn').classList.add('on');
+  sendTimer = setInterval(sendData, 50);
+}
+
+function onDisc(){
+  connected=false; bleChar=null; clearInterval(sendTimer);
+  document.getElementById('dot').classList.remove('on');
+  document.getElementById('conn-label').textContent='RC DISCONNECTED';
+  document.getElementById('conn-btn').textContent='CONNECT';
+  document.getElementById('conn-btn').classList.remove('on');
+  throttleVal=0; steerVal=0; updateUI();
+}
+
+// ─── CAR STATE & MATH ──────────────────────────────────
+let throttleVal=0, steerVal=0, speedMul=0.7;
+let gasDown=false, brakeDown=false, leftDown=false, rightDown=false;
+
+function clamp(v,mn,mx){return Math.max(mn,Math.min(mx,v));}
+
+function sendData(){
+  if(gasDown)        throttleVal = clamp(throttleVal+8, -100, 100);
+  else if(brakeDown) throttleVal = clamp(throttleVal-8, -100, 100);
+  else if(throttleVal>0) throttleVal = Math.max(0, throttleVal-6);
+  else if(throttleVal<0) throttleVal = Math.min(0, throttleVal+6);
+
+  if(!gyroOn){
+    if(leftDown)        steerVal = clamp(steerVal-15, -100, 100);
+    else if(rightDown)  steerVal = clamp(steerVal+15, -100, 100);
+    else if(steerVal>0) steerVal = Math.max(0, steerVal-20);
+    else if(steerVal<0) steerVal = Math.min(0, steerVal+20);
+  }
+
+  const t = Math.round(throttleVal * speedMul);
+  const s = Math.round(steerVal); 
+
+  const byte0 = clamp(t + s, -100, 100); 
+  const byte1 = clamp(t - s, -100, 100); 
+
+  if(bleChar && connected){
+    const buf = new Int8Array([byte0, byte1]);
+    bleChar.writeValueWithoutResponse(buf.buffer).catch(()=>{});
+  }
+  updateUI(t, s);
+}
+
+function updateUI(t=0, s=0){
+  const el = document.getElementById('speed-num');
+  el.textContent = Math.abs(t);
+  el.className = t > 5 ? 'fwd' : t < -5 ? 'bwd' : '';
+  
+  document.getElementById('ind-fwd').classList.toggle('active', t > 5);
+  document.getElementById('ind-rev').classList.toggle('active', t < -5);
+  document.getElementById('ind-left').classList.toggle('active', s < -10);
+  document.getElementById('ind-right').classList.toggle('active', s > 10);
+}
+
+function updateSpeed(v){ 
+  speedMul = v/100; 
+  document.getElementById('speed-val').textContent = v + '%'; 
+}
+
+// ─── BUTTON INTERACTIONS ──────────────────────────────────────────
+function bindPress(elId, downCb, upCb){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  el.addEventListener('touchstart', e=>{ e.preventDefault(); if(!editMode) downCb(); }, {passive:false});
+  el.addEventListener('touchend',   e=>{ e.preventDefault(); if(!editMode) upCb(); }, {passive:false});
+  el.addEventListener('touchcancel',e=>{ e.preventDefault(); if(!editMode) upCb(); }, {passive:false});
+  el.addEventListener('mousedown',  e=>{ if(!editMode) downCb(); });
+  el.addEventListener('mouseup',    e=>{ if(!editMode) upCb(); });
+  el.addEventListener('mouseleave', e=>{ if(!editMode) upCb(); });
+}
+
+// Fixed functions connected to specific containers.
+bindPress('func-gas',
+  ()=>{ gasDown=true; document.querySelector('#func-gas .control-btn').classList.add('pressed'); },
+  ()=>{ gasDown=false; document.querySelector('#func-gas .control-btn').classList.remove('pressed'); }
+);
+bindPress('func-brake',
+  ()=>{ brakeDown=true; document.querySelector('#func-brake .control-btn').classList.add('pressed'); },
+  ()=>{ brakeDown=false; document.querySelector('#func-brake .control-btn').classList.remove('pressed'); }
+);
+bindPress('func-left',
+  ()=>{ leftDown=true; document.querySelector('#func-left .control-btn').classList.add('pressed'); },
+  ()=>{ leftDown=false; document.querySelector('#func-left .control-btn').classList.remove('pressed'); }
+);
+bindPress('func-right',
+  ()=>{ rightDown=true; document.querySelector('#func-right .control-btn').classList.add('pressed'); },
+  ()=>{ rightDown=false; document.querySelector('#func-right .control-btn').classList.remove('pressed'); }
+);
+
+// ─── TRUE FULLSCREEN WITH CAMERA HOLE SUPPORT ──────────────────────
+async function goFullscreen(){
+  try {
+    if (!document.fullscreenElement) {
+      const el = document.documentElement;
+      if (el.requestFullscreen) {
+        // navigationUI: "hide" helps android cover the notch
+        await el.requestFullscreen({ navigationUI: "hide" });
+      } else if (el.webkitRequestFullscreen) {
+        await el.webkitRequestFullscreen();
+      }
+      if (screen.orientation && screen.orientation.lock) {
+        await screen.orientation.lock('landscape').catch(e => console.log(e));
+      }
+    } else {
+      if (document.exitFullscreen) await document.exitFullscreen();
+    }
+  } catch(e) { console.error(e); }
+}
+
+// ─── GYROSCOPE (Dynamic Axis Handling) ─────────────────────────────
+let gyroOn=false, gyroPanelOpen=false;
+let centerBeta=0, centerGamma=0;
+
+function toggleGyroPanel(){
+  gyroPanelOpen = !gyroPanelOpen;
+  document.getElementById('gyro-panel').classList.toggle('show', gyroPanelOpen);
+  document.getElementById('gyro-btn').classList.toggle('active', gyroPanelOpen);
+}
+
+function toggleGyroState() {
+  if(window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+    alert("Gyroscope requires HTTPS connection to work properly.");
+  }
+  if (gyroOn) stopGyro();
+  else startGyro();
+}
+
+function startGyro(){
+  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+    DeviceOrientationEvent.requestPermission().then(r => {
+      if(r === 'granted') { activateGyro(); }
+      else { setGyroError(); }
+    }).catch(setGyroError);
+  } else {
+    activateGyro();
+  }
+}
+
+function activateGyro() {
+  window.addEventListener('deviceorientation', onGyro);
+  gyroOn = true;
+  document.getElementById('gyro-dot').className = 'active';
+  document.getElementById('gyro-txt').textContent = 'GYRO ACTIVE';
+  document.getElementById('gyro-toggle-btn').textContent = 'STOP';
+}
+
+function stopGyro(){
+  gyroOn = false;
+  window.removeEventListener('deviceorientation', onGyro);
+  document.getElementById('gyro-dot').className = '';
+  document.getElementById('gyro-txt').textContent = 'GYRO OFF';
+  document.getElementById('gyro-toggle-btn').textContent = 'START';
+  document.getElementById('gyro-level-indicator').style.transform = `translateX(0px)`;
+  document.getElementById('gyro-tilt').textContent = 'TILT: 0°';
+  steerVal = 0;
+}
+
+function setGyroError() {
+  document.getElementById('gyro-dot').className = 'error';
+  document.getElementById('gyro-txt').textContent = 'DENIED / HTTP';
+}
+
+function calibrateGyro(){
+  window.addEventListener('deviceorientation', function calib(e){
+    centerBeta = e.beta || 0;
+    centerGamma = e.gamma || 0;
+    window.removeEventListener('deviceorientation', calib);
+    const btn = document.getElementById('calib-btn');
+    btn.textContent = 'CENTERED ✓';
+    btn.style.borderColor = 'var(--neon-green)';
+    btn.style.color = 'var(--neon-green)';
+    setTimeout(()=>{
+      btn.textContent = 'SET CENTER';
+      btn.style.borderColor = '';
+      btn.style.color = '';
+    }, 1500);
+  }, {once:true});
+}
+
+function onGyro(e){
+  if(!gyroOn) return;
+  
+  let diffBeta = (e.beta || 0) - centerBeta;
+  let diffGamma = (e.gamma || 0) - centerGamma;
+  
+  let isLandscape = window.innerWidth > window.innerHeight;
+  let orientation = (screen.orientation || {}).angle || window.orientation || 0;
+  
+  let tiltValue = 0;
+  if (isLandscape) {
+    tiltValue = orientation === -90 ? -diffBeta : diffBeta; 
+  } else {
+    tiltValue = diffGamma;
+  }
+
+  const dead = 5;
+  let g = Math.abs(tiltValue) < dead ? 0 : tiltValue - Math.sign(tiltValue) * dead;
+  steerVal = clamp(Math.round(g * 2.2), -100, 100);
+  
+  document.getElementById('gyro-tilt').textContent = `TILT: ${Math.round(tiltValue)}°`;
+  const maxVisualTilt = 45; 
+  let visualOffset = clamp(tiltValue / maxVisualTilt, -1, 1) * 80;
+  document.getElementById('gyro-level-indicator').style.transform = `translateX(${visualOffset}px)`;
+}
+
+// ─── ICON SWAP & LAYOUT SYSTEM ────────────────────────────────────
+let editMode=false, dragging=null;
+let dragOffX=0, dragOffY=0, startLeft='', startTop='', startRight='', startBottom='';
+
+function toggleEdit(){
+  editMode = !editMode;
+  document.querySelectorAll('.widget').forEach(w => w.classList.toggle('editing', editMode));
+  document.getElementById('edit-btn').classList.toggle('active', editMode);
+  if(!editMode) saveLayout();
+}
+
+function getCenter(el) {
+  const rect = el.getBoundingClientRect();
+  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+}
+
+function checkSwap(draggedEl) {
+  const c1 = getCenter(draggedEl);
+  let swapped = false;
+  
+  document.querySelectorAll('.widget').forEach(w => {
+    if(w !== draggedEl && !swapped) {
+      const r = w.getBoundingClientRect();
+      if(c1.x > r.left && c1.x < r.right && c1.y > r.top && c1.y < r.bottom) {
+        
+        // ONLY SWAP THE VISUAL ICON ATTRIBUTE (The physical box stays where it was)
+        const tempIcon = w.getAttribute('data-icon');
+        w.setAttribute('data-icon', draggedEl.getAttribute('data-icon'));
+        draggedEl.setAttribute('data-icon', tempIcon);
+        
+        // Snap the dragged element back to its original position
+        draggedEl.style.left = startLeft; draggedEl.style.top = startTop;
+        draggedEl.style.right = startRight; draggedEl.style.bottom = startBottom;
+        
+        swapped = true;
+        renderIcons(); // Update the SVGs immediately
+      }
+    }
+  });
+  return swapped;
+}
+
+document.addEventListener('touchstart', e => {
+  if(!editMode) return;
+  const t = e.touches[0];
+  const widget = document.elementFromPoint(t.clientX, t.clientY)?.closest('.widget');
+  if(widget){
+    e.preventDefault(); dragging = widget;
+    const r = widget.getBoundingClientRect();
+    dragOffX = t.clientX - r.left; dragOffY = t.clientY - r.top;
+    
+    startLeft = widget.style.left; startTop = widget.style.top;
+    startRight = widget.style.right; startBottom = widget.style.bottom;
+  }
+}, {passive:false});
+
+document.addEventListener('touchmove', e => {
+  if(!editMode || !dragging) return;
+  e.preventDefault();
+  const t = e.touches[0];
+  dragging.style.left = (t.clientX - dragOffX) + 'px';
+  dragging.style.top = (t.clientY - dragOffY) + 'px';
+  dragging.style.right = 'auto'; dragging.style.bottom = 'auto';
+}, {passive:false});
+
+document.addEventListener('touchend', () => {
+  if(editMode && dragging) {
+    checkSwap(dragging);
+    saveLayout(); dragging = null;
+  }
+});
+
+document.addEventListener('mousedown', e => {
+  if(!editMode) return;
+  const widget = e.target.closest('.widget');
+  if(widget){
+    dragging = widget;
+    const r = widget.getBoundingClientRect();
+    dragOffX = e.clientX - r.left; dragOffY = e.clientY - r.top;
+    startLeft = widget.style.left; startTop = widget.style.top;
+    startRight = widget.style.right; startBottom = widget.style.bottom;
+  }
+});
+
+document.addEventListener('mousemove', e => {
+  if(!editMode || !dragging) return;
+  dragging.style.left = (e.clientX - dragOffX) + 'px';
+  dragging.style.top = (e.clientY - dragOffY) + 'px';
+  dragging.style.right = 'auto'; dragging.style.bottom = 'auto';
+});
+
+document.addEventListener('mouseup', () => {
+  if(editMode && dragging) {
+    checkSwap(dragging);
+    saveLayout(); dragging = null;
+  }
+});
+
+function saveLayout(){
+  const layout = {};
+  document.querySelectorAll('.widget').forEach(w => {
+    layout[w.id] = { 
+      left: w.style.left, top: w.style.top, right: w.style.right, bottom: w.style.bottom,
+      icon: w.getAttribute('data-icon') // Save the swapped icon info
+    };
+  });
+  try { localStorage.setItem('rc_premium_layout_v3', JSON.stringify(layout)); } catch(e){}
+}
+
+function loadLayout(){
+  try{
+    const s = localStorage.getItem('rc_premium_layout_v3');
+    if(!s) { renderIcons(); return; }
+    const l = JSON.parse(s);
+    Object.entries(l).forEach(([id, p]) => {
+      const el = document.getElementById(id);
+      if(el){ 
+        el.style.left = p.left; el.style.top = p.top; el.style.right = p.right; el.style.bottom = p.bottom; 
+        if(p.icon) el.setAttribute('data-icon', p.icon);
+      }
+    });
+    renderIcons();
+  }catch(e){ renderIcons(); }
+}
+
+// ─── INITIALIZATION ───
+loadLayout();
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('gesturestart', e => e.preventDefault());
+</script>
+</body>
+</html>
