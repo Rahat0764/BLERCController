@@ -6,324 +6,216 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>RC Premium Controller</title>
+<title>RC Premium Controller V2</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap');
+
 :root {
-  --bg: #050914;
-  --panel: rgba(15,23,42,0.85);
-  --border: rgba(255,255,255,0.1);
-  --blue: #00e5ff;
-  --green: #00ff88;
-  --red: #ff3355;
-  --orange: #ff9900;
-  --purple: #bb88ff;
+  --bg: #030712;
+  --panel: rgba(17, 24, 39, 0.75);
+  --border: rgba(255, 255, 255, 0.08);
+  --blue: #00d2ff;
+  --green: #10b981;
+  --red: #ef4444;
+  --orange: #f59e0b;
+  --purple: #8b5cf6;
 }
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{width:100vw;height:100vh;background:var(--bg);overflow:hidden;font-family:'Courier New',monospace;user-select:none;}
-body::before{content:'';position:absolute;inset:0;pointer-events:none;
-  background-image:radial-gradient(circle at center,rgba(0,229,255,0.05) 0%,transparent 60%),
-  linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),
-  linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);
-  background-size:100% 100%,40px 40px,40px 40px;z-index:0;}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { width:100vw; height:100vh; background:var(--bg); overflow:hidden; font-family:'Rajdhani', sans-serif; user-select:none; color: #fff; }
+body::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(0, 210, 255, 0.05) 0%, transparent 60%),
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 100% 100%, 30px 30px, 30px 30px; z-index:0;
+}
 
 /* ── TOPBAR ── */
-#topbar{
-  position:fixed;top:0;left:0;right:0;
-  height:max(56px,env(safe-area-inset-top));
-  display:flex;align-items:center;justify-content:space-between;
-  padding:env(safe-area-inset-top) max(12px,env(safe-area-inset-right)) 0 max(12px,env(safe-area-inset-left));
-  background:var(--panel);backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--border);z-index:200;
-  box-shadow:0 4px 30px rgba(0,0,0,.5);gap:8px;
+#topbar {
+  position:fixed; top:0; left:0; right:0; height:max(60px, env(safe-area-inset-top));
+  display:flex; align-items:center; justify-content:space-between;
+  padding:env(safe-area-inset-top) max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left));
+  background:var(--panel); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border); z-index:200; box-shadow:0 4px 30px rgba(0,0,0,0.6); gap:12px;
 }
-#connect-area{display:flex;align-items:center;gap:8px;flex-shrink:0;}
-#dot{width:10px;height:10px;border-radius:50%;background:var(--red);box-shadow:0 0 10px var(--red);transition:all .3s;}
-#dot.on{background:var(--green);box-shadow:0 0 12px var(--green);}
-#conn-label{font-size:10px;letter-spacing:2px;color:#aaa;font-weight:bold;white-space:nowrap;}
-#conn-btn{
-  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.2);
-  color:#ccc;padding:5px 10px;font-family:'Courier New',monospace;font-size:10px;
-  letter-spacing:1px;cursor:pointer;border-radius:6px;font-weight:bold;transition:all .2s;white-space:nowrap;
+#connect-area { display:flex; align-items:center; gap:10px; }
+#dot { width:12px; height:12px; border-radius:50%; background:var(--red); box-shadow:0 0 12px var(--red); transition:0.3s; }
+#dot.on { background:var(--green); box-shadow:0 0 15px var(--green); }
+#conn-label { font-size:14px; letter-spacing:2px; font-weight:700; color:#9ca3af; }
+#conn-btn {
+  background:rgba(255,255,255,0.05); border:1px solid var(--border); color:#d1d5db;
+  padding:6px 14px; font-family:inherit; font-size:12px; letter-spacing:1px;
+  cursor:pointer; border-radius:8px; font-weight:700; transition:0.2s;
 }
-#conn-btn.on{border-color:var(--red);color:var(--red);background:rgba(255,51,85,.1);}
-#conn-btn:active{transform:scale(.95);}
+#conn-btn.on { border-color:var(--red); color:var(--red); background:rgba(239, 68, 68, 0.1); }
+#conn-btn:active { transform:scale(0.95); }
 
-#speed-bar{display:flex;align-items:center;gap:6px;flex:1;justify-content:center;min-width:0;}
-#speed-bar label{font-size:9px;letter-spacing:2px;color:#888;font-weight:bold;flex-shrink:0;}
-#speed-slider{-webkit-appearance:none;appearance:none;width:100%;max-width:130px;height:4px;
-  background:rgba(255,255,255,.1);border-radius:2px;outline:none;}
-#speed-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;
-  background:var(--blue);box-shadow:0 0 10px var(--blue);cursor:pointer;}
-#speed-val{font-size:10px;color:var(--blue);min-width:34px;font-weight:bold;}
+#speed-bar { display:flex; align-items:center; gap:8px; flex:1; justify-content:center; }
+#speed-bar label { font-size:12px; letter-spacing:2px; color:#9ca3af; font-weight:600; }
+#speed-slider { -webkit-appearance:none; appearance:none; width:100%; max-width:150px; height:6px; background:rgba(255,255,255,0.1); border-radius:3px; outline:none; }
+#speed-slider::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:var(--blue); box-shadow:0 0 12px var(--blue); cursor:pointer; }
+#speed-val { font-size:13px; color:var(--blue); min-width:40px; font-weight:700; }
 
-#top-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
-.icon-btn{
-  width:36px;height:36px;border-radius:8px;border:1px solid var(--border);
-  background:rgba(255,255,255,.03);color:#888;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:all .2s;touch-action:manipulation;flex-shrink:0;
+#top-right { display:flex; gap:8px; }
+.icon-btn {
+  width:40px; height:40px; border-radius:10px; border:1px solid var(--border);
+  background:rgba(255,255,255,0.03); color:#9ca3af; display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:0.2s;
 }
-.icon-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;}
-.icon-btn:active{transform:scale(.9);}
-.icon-btn.active{border-color:var(--orange);color:var(--orange);box-shadow:inset 0 0 10px rgba(255,153,0,.2);}
-.icon-btn.mode-active{border-color:var(--purple);color:var(--purple);box-shadow:0 0 10px rgba(187,136,255,.3);}
+.icon-btn svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.icon-btn:active { transform:scale(0.9); }
+.icon-btn.active { border-color:var(--orange); color:var(--orange); box-shadow:inset 0 0 15px rgba(245, 158, 11, 0.2); }
+.icon-btn.mode-active { border-color:var(--purple); color:var(--purple); box-shadow:0 0 15px rgba(139, 92, 246, 0.3); }
 
-/* ── MODE BADGE ── */
-#mode-badge{
-  position:fixed;top:max(62px,calc(env(safe-area-inset-top)+6px));left:50%;transform:translateX(-50%);
-  background:rgba(187,136,255,.15);border:1px solid var(--purple);
-  color:var(--purple);font-size:9px;letter-spacing:3px;padding:4px 12px;border-radius:20px;
-  font-weight:bold;z-index:190;display:none;pointer-events:none;
-}
-#mode-badge.show{display:block;}
+/* ── CENTER SPEED DISPLAY ── */
+#speed-display { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; pointer-events:none; z-index:10; }
+#speed-num { font-size:110px; font-weight:700; color:rgba(255,255,255,0.03); line-height:1; transition:0.2s; }
+#speed-num.fwd { color:var(--green); text-shadow:0 0 50px rgba(16, 185, 129, 0.4); }
+#speed-num.bwd { color:var(--red); text-shadow:0 0 50px rgba(239, 68, 68, 0.4); }
+#speed-lbl { font-size:14px; letter-spacing:6px; color:rgba(255,255,255,0.2); margin-top:5px; font-weight:600; }
 
-/* ── SPEED DISPLAY ── */
-#speed-display{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;z-index:10;}
-#speed-num{font-size:80px;font-weight:bold;color:rgba(255,255,255,.05);line-height:1;transition:color .2s,text-shadow .2s;}
-#speed-num.fwd{color:var(--green);text-shadow:0 0 40px rgba(0,255,136,.3);}
-#speed-num.bwd{color:var(--red);text-shadow:0 0 40px rgba(255,51,85,.3);}
-#speed-lbl{font-size:11px;letter-spacing:4px;color:rgba(255,255,255,.2);margin-top:8px;font-weight:bold;}
+/* ── DRAGGABLE ELEMENTS (Joysticks & Buttons) ── */
+.draggable { position:fixed; z-index:50; touch-action:none; display:flex; align-items:center; justify-content:center; transform-origin:center; }
+.draggable.editing { cursor:move; z-index:200; outline:2px dashed rgba(255,255,255,0.3); border-radius:12px; background:rgba(255,255,255,0.05); }
+.draggable.editing.selected { outline:2px solid var(--orange); box-shadow:0 0 20px rgba(245, 158, 11, 0.3); }
 
-/* ── JOYSTICK WIDGETS ── */
-.joystick-zone{
-  position:fixed;z-index:50;touch-action:none;
-  display:flex;align-items:center;justify-content:center;
+/* ── JOYSTICKS ── */
+.joystick-base {
+  width:140px; height:140px; border-radius:50%; border:2px solid var(--border);
+  background:radial-gradient(circle, rgba(255,255,255,0.03), rgba(0,0,0,0.6));
+  backdrop-filter:blur(8px); box-shadow:0 10px 30px rgba(0,0,0,0.8), inset 0 2px 5px rgba(255,255,255,0.05);
+  position:relative; display:flex; align-items:center; justify-content:center; pointer-events:auto;
 }
-.joystick-base{
-  width:130px;height:130px;border-radius:50%;
-  border:2px solid rgba(255,255,255,.12);
-  background:radial-gradient(circle,rgba(255,255,255,.04),rgba(0,0,0,.5));
-  backdrop-filter:blur(4px);
-  box-shadow:4px 4px 15px rgba(0,0,0,.6),inset 1px 1px 3px rgba(255,255,255,.08);
-  position:relative;display:flex;align-items:center;justify-content:center;
+.joystick-base.active { border-color:rgba(0,210,255,0.5); box-shadow:0 0 25px rgba(0,210,255,0.2); }
+.joystick-knob {
+  width:56px; height:56px; border-radius:50%;
+  background:linear-gradient(135deg, rgba(255,255,255,0.2), rgba(0,0,0,0.8));
+  border:1px solid rgba(255,255,255,0.3); box-shadow:0 5px 15px rgba(0,0,0,0.9);
+  position:absolute; pointer-events:none; transition:background 0.1s;
 }
-.joystick-base.active{border-color:var(--blue);box-shadow:0 0 20px rgba(0,229,255,.3),inset 0 0 10px rgba(0,229,255,.1);}
-.joystick-base.fwd-active{border-color:var(--green);box-shadow:0 0 20px rgba(0,255,136,.3);}
-.joystick-base.bwd-active{border-color:var(--red);box-shadow:0 0 20px rgba(255,51,85,.3);}
-.joystick-knob{
-  width:48px;height:48px;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,255,255,.15),rgba(0,0,0,.7));
-  border:2px solid rgba(255,255,255,.2);
-  box-shadow:0 4px 12px rgba(0,0,0,.8);
-  position:absolute;pointer-events:none;transition:background .1s;
-}
-.joystick-label{
-  position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);
-  font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.3);font-weight:bold;white-space:nowrap;
-}
-/* Axis lines in joystick */
-.joystick-base::before,.joystick-base::after{
-  content:'';position:absolute;background:rgba(255,255,255,.05);pointer-events:none;
-}
-.joystick-base::before{width:1px;height:70%;left:50%;transform:translateX(-50%);}
-.joystick-base::after{height:1px;width:70%;top:50%;transform:translateY(-50%);}
+.joystick-label { position:absolute; bottom:-25px; font-size:11px; letter-spacing:3px; color:rgba(255,255,255,0.4); font-weight:700; white-space:nowrap; pointer-events:none;}
 
-/* ── BUTTON WIDGETS (icon swap) ── */
-.widget{position:fixed;z-index:50;touch-action:none;display:flex;align-items:center;justify-content:center;}
-.widget.editing{cursor:move;z-index:200;animation:pulseEdit 1.5s infinite;}
-@keyframes pulseEdit{0%{filter:drop-shadow(0 0 5px var(--orange));}50%{filter:drop-shadow(0 0 15px var(--orange));}100%{filter:drop-shadow(0 0 5px var(--orange));}}
-.widget.editing::after{
-  content:'DRAG / SWAP';position:absolute;top:-20px;left:50%;transform:translateX(-50%);
-  font-size:8px;background:var(--orange);color:#000;padding:2px 6px;border-radius:4px;font-weight:bold;white-space:nowrap;pointer-events:none;
+/* ── WIDGET BUTTONS ── */
+.control-btn {
+  border:1px solid var(--border); background:linear-gradient(145deg, rgba(255,255,255,0.08), rgba(0,0,0,0.6));
+  backdrop-filter:blur(8px); box-shadow:0 8px 20px rgba(0,0,0,0.6);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
+  cursor:pointer; transition:0.1s; color:#9ca3af; border-radius:50%; pointer-events:auto;
 }
-.control-btn{
-  border:2px solid rgba(255,255,255,.1);
-  background:linear-gradient(145deg,rgba(255,255,255,.05),rgba(0,0,0,.5));
-  backdrop-filter:blur(5px);box-shadow:4px 4px 10px rgba(0,0,0,.5),inset 1px 1px 2px rgba(255,255,255,.1);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
-  cursor:pointer;transition:all .1s;user-select:none;color:#888;
-}
-.control-btn svg{stroke:currentColor;fill:none;pointer-events:none;}
-.btn-label{font-size:9px;letter-spacing:2px;font-weight:bold;pointer-events:none;}
+.control-btn svg { stroke:currentColor; fill:none; pointer-events:none; }
+.btn-label { font-size:10px; letter-spacing:2px; font-weight:700; pointer-events:none; }
 
-/* Per-icon sizes */
-.widget[data-icon="left"] .control-btn,.widget[data-icon="right"] .control-btn{width:70px;height:70px;border-radius:50%;color:var(--blue);}
-.widget[data-icon="left"] .control-btn svg,.widget[data-icon="right"] .control-btn svg{width:30px;height:30px;}
-.widget[data-icon="left"] .control-btn.pressed,.widget[data-icon="right"] .control-btn.pressed{
-  border-color:var(--blue);background:rgba(0,229,255,.1);box-shadow:0 0 25px rgba(0,229,255,.4);transform:scale(.95);}
-.widget[data-icon="gas"] .control-btn{width:70px;height:88px;border-radius:12px;color:var(--green);}
-.widget[data-icon="gas"] .control-btn svg{width:26px;height:38px;}
-.widget[data-icon="gas"] .control-btn.pressed{border-color:var(--green);background:rgba(0,255,136,.1);box-shadow:0 0 30px rgba(0,255,136,.4);transform:translateY(4px) scale(.95);}
-.widget[data-icon="brake"] .control-btn{width:82px;height:88px;border-radius:12px;color:var(--red);}
-.widget[data-icon="brake"] .control-btn svg{width:38px;height:26px;}
-.widget[data-icon="brake"] .control-btn.pressed{border-color:var(--red);background:rgba(255,51,85,.1);box-shadow:0 0 30px rgba(255,51,85,.4);transform:translateY(4px) scale(.95);}
+.draggable[data-icon="left"] .control-btn, .draggable[data-icon="right"] .control-btn { width:70px; height:70px; color:var(--blue); }
+.draggable[data-icon="left"] .control-btn.pressed, .draggable[data-icon="right"] .control-btn.pressed { border-color:var(--blue); background:rgba(0,210,255,0.15); box-shadow:0 0 30px rgba(0,210,255,0.4); transform:scale(0.92); }
+.draggable[data-icon="gas"] .control-btn { width:70px; height:90px; border-radius:16px; color:var(--green); }
+.draggable[data-icon="gas"] .control-btn.pressed { border-color:var(--green); background:rgba(16,185,129,0.15); box-shadow:0 0 30px rgba(16,185,129,0.4); transform:translateY(4px) scale(0.92); }
+.draggable[data-icon="brake"] .control-btn { width:80px; height:90px; border-radius:16px; color:var(--red); }
+.draggable[data-icon="brake"] .control-btn.pressed { border-color:var(--red); background:rgba(239,68,68,0.15); box-shadow:0 0 30px rgba(239,68,68,0.4); transform:translateY(4px) scale(0.92); }
 
-/* ── PANELS (shared) ── */
-.panel{
-  position:fixed;background:var(--panel);backdrop-filter:blur(12px);
-  border:1px solid var(--border);border-radius:14px;
-  padding:16px;z-index:300;box-shadow:0 10px 40px rgba(0,0,0,.9);
-  display:none;flex-direction:column;gap:12px;min-width:240px;
+/* ── PANELS ── */
+.overlay { position:fixed; inset:0; z-index:290; display:none; }
+.overlay.show { display:block; }
+.panel {
+  position:fixed; background:var(--panel); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  border:1px solid var(--border); border-radius:16px; padding:20px; z-index:300;
+  box-shadow:0 15px 50px rgba(0,0,0,0.8); display:none; flex-direction:column; gap:16px; min-width:260px;
 }
-.panel.show{display:flex;}
-.panel-title{font-size:10px;letter-spacing:3px;color:#aaa;font-weight:bold;}
-.panel-row{display:flex;align-items:center;justify-content:space-between;gap:12px;}
-.panel-label{font-size:10px;letter-spacing:1px;color:#888;}
-.toggle-switch{
-  position:relative;width:40px;height:22px;cursor:pointer;
-}
-.toggle-switch input{opacity:0;width:0;height:0;}
-.toggle-track{
-  position:absolute;inset:0;background:rgba(255,255,255,.1);border-radius:11px;
-  border:1px solid rgba(255,255,255,.2);transition:.3s;
-}
-.toggle-switch input:checked+.toggle-track{background:rgba(0,229,255,.3);border-color:var(--blue);}
-.toggle-knob{
-  position:absolute;top:3px;left:3px;width:14px;height:14px;
-  border-radius:50%;background:#888;transition:.3s;
-}
-.toggle-switch input:checked~.toggle-knob,.toggle-switch input:checked+.toggle-track+.toggle-knob{left:21px;background:var(--blue);box-shadow:0 0 6px var(--blue);}
-/* workaround for toggle knob */
-.tsw{position:relative;width:40px;height:22px;cursor:pointer;flex-shrink:0;}
-.tsw-track{position:absolute;inset:0;background:rgba(255,255,255,.1);border-radius:11px;border:1px solid rgba(255,255,255,.2);transition:.3s;}
-.tsw-knob{position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#888;transition:.3s;}
-.tsw.on .tsw-track{background:rgba(0,229,255,.3);border-color:var(--blue);}
-.tsw.on .tsw-knob{left:21px;background:var(--blue);box-shadow:0 0 6px var(--blue);}
-.tsw.green.on .tsw-track{background:rgba(0,255,136,.3);border-color:var(--green);}
-.tsw.green.on .tsw-knob{background:var(--green);box-shadow:0 0 6px var(--green);}
-.panel-btn{
-  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.2);color:#fff;
-  padding:8px 14px;font-family:'Courier New',monospace;font-size:10px;letter-spacing:2px;
-  cursor:pointer;border-radius:6px;text-transform:uppercase;transition:all .2s;font-weight:bold;
-}
-.panel-btn:active{background:rgba(0,229,255,.2);border-color:var(--blue);color:var(--blue);}
-.panel-divider{height:1px;background:var(--border);margin:2px 0;}
+.panel.show { display:flex; animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+@keyframes popIn { 0%{opacity:0; transform:scale(0.9);} 100%{opacity:1; transform:scale(1);} }
+.panel-header { display:flex; justify-content:space-between; align-items:center; }
+.panel-title { font-size:13px; letter-spacing:3px; color:#fff; font-weight:700; display:flex; align-items:center; gap:8px;}
+.close-panel { background:none; border:none; color:#9ca3af; font-size:18px; cursor:pointer; padding:4px; border-radius:50%; }
+.close-panel:active { color:#fff; background:rgba(255,255,255,0.1); }
+.panel-row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.panel-btn { background:rgba(255,255,255,0.05); border:1px solid var(--border); color:#fff; padding:10px 16px; font-family:inherit; font-size:12px; letter-spacing:2px; cursor:pointer; border-radius:8px; font-weight:700; transition:0.2s; text-transform:uppercase; }
+.panel-btn:active { background:rgba(255,255,255,0.1); transform:scale(0.95); }
 
-/* ── GYRO PANEL ── */
-#gyro-panel{top:max(66px,calc(env(safe-area-inset-top)+10px));right:12px;}
-#gyro-level-bg{width:100%;height:8px;background:rgba(0,0,0,.5);border-radius:4px;border:1px solid rgba(255,255,255,.1);position:relative;overflow:hidden;}
-#gyro-level-ind{position:absolute;top:0;left:50%;width:20px;height:100%;background:var(--blue);margin-left:-10px;border-radius:4px;box-shadow:0 0 10px var(--blue);transition:transform .1s ease-out;}
-#gyro-level-bg::after{content:'';position:absolute;top:0;left:50%;width:2px;height:100%;background:rgba(255,255,255,.5);transform:translateX(-50%);}
-#gyro-tilt{font-size:11px;color:#aaa;letter-spacing:1px;font-weight:bold;text-align:center;}
-#gyro-dot{width:8px;height:8px;border-radius:50%;background:#444;transition:all .3s;}
-#gyro-dot.active{background:var(--green);box-shadow:0 0 10px var(--green);}
-#gyro-dot.error{background:var(--red);box-shadow:0 0 10px var(--red);}
+/* Gyro Extras */
+#gyro-panel { top:max(70px, calc(env(safe-area-inset-top)+20px)); right:16px; }
+#gyro-level-bg { width:100%; height:10px; background:rgba(0,0,0,0.6); border-radius:5px; border:1px solid rgba(255,255,255,0.1); position:relative; overflow:hidden; }
+#gyro-level-ind { position:absolute; top:0; left:50%; width:24px; height:100%; background:var(--blue); margin-left:-12px; border-radius:5px; box-shadow:0 0 12px var(--blue); transition:transform 0.1s linear; }
+#gyro-level-bg::after { content:''; position:absolute; top:0; left:50%; width:2px; height:100%; background:rgba(255,255,255,0.6); transform:translateX(-50%); }
+#gyro-tilt { font-size:13px; color:#9ca3af; letter-spacing:2px; font-weight:600; text-align:center; }
 
-/* ── CAMERA PANEL (MediaPipe) ── */
-#cam-panel{
-  position:fixed;inset:0;background:#000;z-index:400;
-  display:none;flex-direction:column;align-items:center;justify-content:center;
-}
-#cam-panel.show{display:flex;}
-#cam-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);}
-#cam-canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-#cam-overlay{
-  position:absolute;top:16px;left:50%;transform:translateX(-50%);
-  display:flex;flex-direction:column;align-items:center;gap:8px;
-}
-#finger-count-display{
-  font-size:64px;font-weight:bold;color:var(--green);
-  text-shadow:0 0 30px rgba(0,255,136,.6);line-height:1;
-  transition:all .15s;
-}
-#gesture-label{
-  font-size:11px;letter-spacing:4px;color:rgba(255,255,255,.7);font-weight:bold;
-}
-#cam-close{
-  position:absolute;top:max(16px,env(safe-area-inset-top));right:16px;
-  width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.3);
-  color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;z-index:10;
-}
-#cam-status{
-  position:absolute;bottom:max(30px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
-  font-size:10px;letter-spacing:2px;color:rgba(255,255,255,.4);font-weight:bold;white-space:nowrap;
-}
+/* Custom Toggle */
+.tsw { position:relative; width:44px; height:24px; cursor:pointer; flex-shrink:0; }
+.tsw-track { position:absolute; inset:0; background:rgba(255,255,255,0.1); border-radius:12px; border:1px solid rgba(255,255,255,0.1); transition:0.3s; }
+.tsw-knob { position:absolute; top:3px; left:3px; width:16px; height:16px; border-radius:50%; background:#9ca3af; transition:0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.tsw.on .tsw-track { background:rgba(0,210,255,0.3); border-color:var(--blue); }
+.tsw.on .tsw-knob { left:23px; background:var(--blue); box-shadow:0 0 10px var(--blue); }
 
-/* ── INDICATORS ── */
-#indicators{
-  position:fixed;bottom:max(10px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
-  display:flex;gap:16px;z-index:10;pointer-events:none;
+/* ── EDIT TOOLBAR ── */
+#edit-toolbar {
+  position:fixed; bottom:max(20px, env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%);
+  background:var(--panel); border:1px solid var(--orange); padding:12px 24px; border-radius:24px;
+  display:none; align-items:center; gap:16px; z-index:300; box-shadow:0 10px 40px rgba(0,0,0,0.8);
+  backdrop-filter:blur(16px);
 }
-.ind{font-size:9px;letter-spacing:3px;color:rgba(255,255,255,.2);display:flex;align-items:center;gap:5px;font-weight:bold;}
-.ind-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.1);transition:all .2s;}
-.ind.active{color:var(--green);}
-.ind.active .ind-dot{background:var(--green);box-shadow:0 0 8px var(--green);}
-.ind.rev.active{color:var(--red);}
-.ind.rev.active .ind-dot{background:var(--red);box-shadow:0 0 8px var(--red);}
+#edit-toolbar span { font-size:12px; font-weight:700; color:var(--orange); letter-spacing:2px; }
+#edit-slider { width:120px; }
+#edit-done-btn { background:var(--orange); border:none; color:#000; padding:6px 16px; border-radius:12px; font-weight:700; cursor:pointer; }
 
-/* ── PS4 INDICATOR ── */
-#gamepad-ind{
-  position:fixed;bottom:max(30px,env(safe-area-inset-bottom));right:16px;
-  font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.2);font-weight:bold;
-  display:none;
-}
-#gamepad-ind.show{display:block;color:var(--purple);}
-
-/* ── RESPONSIVE (PC) ── */
-@media(min-width:768px){
-  #conn-label{display:block;}
-  .joystick-base{width:160px;height:160px;}
-  .joystick-knob{width:56px;height:56px;}
-  #speed-num{font-size:100px;}
-}
+/* ── CAMERA ── */
+#cam-panel { position:fixed; inset:0; background:#000; z-index:400; display:none; flex-direction:column; align-items:center; justify-content:center; }
+#cam-panel.show { display:flex; }
+#cam-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
+#cam-canvas { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+#cam-overlay { position:absolute; top:20px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:5px; }
+#finger-count-display { font-size:80px; font-weight:700; color:var(--green); text-shadow:0 0 40px rgba(16,185,129,0.8); line-height:1; }
+#gesture-label { font-size:14px; letter-spacing:4px; color:rgba(255,255,255,0.9); font-weight:700; background:rgba(0,0,0,0.5); padding:4px 12px; border-radius:8px;}
+#cam-close { position:absolute; top:max(20px,env(safe-area-inset-top)); right:20px; width:48px; height:48px; border-radius:50%; background:rgba(0,0,0,0.7); border:1px solid rgba(255,255,255,0.4); color:#fff; cursor:pointer; font-size:24px; z-index:10; }
 </style>
 </head>
 <body>
 
-<!-- TOPBAR -->
 <div id="topbar">
   <div id="connect-area">
     <div id="dot"></div>
     <span id="conn-label">DISCONNECTED</span>
     <button id="conn-btn" onclick="toggleConnect()">CONNECT</button>
   </div>
-
   <div id="speed-bar">
     <label>PWR</label>
     <input type="range" id="speed-slider" min="10" max="100" value="70" oninput="updateSpeed(this.value)">
     <span id="speed-val">70%</span>
   </div>
-
   <div id="top-right">
-    <!-- Gyro -->
-    <button class="icon-btn" id="gyro-btn" onclick="togglePanel('gyro-panel','gyro-btn')" title="Gyroscope">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>
-    </button>
-    <!-- MediaPipe Camera -->
-    <button class="icon-btn" id="cam-btn" onclick="openCamera()" title="Hand Gesture Mode">
-      <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-    </button>
-    <!-- Edit Layout -->
-    <button class="icon-btn" id="edit-btn" onclick="toggleEdit()" title="Edit Layout">
-      <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-    </button>
-    <!-- Fullscreen -->
-    <button class="icon-btn" onclick="goFullscreen()" title="Fullscreen">
-      <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-    </button>
+    <button class="icon-btn" id="gyro-btn" onclick="openPanel('gyro-panel')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg></button>
+    <button class="icon-btn" id="cam-btn" onclick="openCamera()"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></button>
+    <button class="icon-btn" id="edit-btn" onclick="toggleEditMode()"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+    <button class="icon-btn" onclick="goFullscreen()"><svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
   </div>
 </div>
 
-<div id="mode-badge">GESTURE MODE</div>
-
-<!-- CENTER DISPLAY -->
 <div id="speed-display">
   <div id="speed-num">0</div>
   <div id="speed-lbl">THROTTLE</div>
 </div>
 
-<!-- ── GYRO PANEL ── -->
-<div class="panel" id="gyro-panel" style="top:max(66px,calc(env(safe-area-inset-top)+10px));right:12px;">
-  <div class="panel-title">⟳ GYROSCOPE</div>
+<div class="overlay" id="panel-overlay" onclick="closeAllPanels()"></div>
+
+<div class="panel" id="gyro-panel">
+  <div class="panel-header">
+    <div class="panel-title">⟳ GYROSCOPE</div>
+    <button class="close-panel" onclick="closeAllPanels()">✕</button>
+  </div>
   <div class="panel-row">
-    <div style="display:flex;align-items:center;gap:8px;">
-      <div id="gyro-dot"></div>
-      <span id="gyro-txt" style="font-size:10px;letter-spacing:1px;color:#fff;font-weight:bold;">OFF</span>
-    </div>
-    <button class="panel-btn" onclick="toggleGyroState()" id="gyro-toggle-btn" style="padding:6px 12px;">START</button>
+    <span id="gyro-txt" style="font-size:12px; font-weight:700; color:#9ca3af;">STATUS: OFF</span>
+    <button class="panel-btn" onclick="toggleGyroState()" id="gyro-toggle-btn" style="border-color:var(--blue); color:var(--blue);">START</button>
   </div>
   <div id="gyro-level-bg"><div id="gyro-level-ind"></div></div>
   <div id="gyro-tilt">TILT: 0°</div>
-  <div class="panel-divider"></div>
+  <hr style="border:none; border-top:1px solid var(--border); margin:4px 0;">
   <div class="panel-row">
-    <span class="panel-label">INVERT AXIS</span>
+    <span style="font-size:11px; font-weight:700; color:#9ca3af; letter-spacing:1px;">INVERT AXIS</span>
     <div class="tsw" id="gyro-invert-sw" onclick="gyroInvert=!gyroInvert;this.classList.toggle('on')">
       <div class="tsw-track"></div><div class="tsw-knob"></div>
     </div>
   </div>
-  <button class="panel-btn" style="width:100%;" onclick="calibrateGyro()">SET CENTER</button>
+  <button class="panel-btn" style="width:100%;" onclick="calibrateGyro()">SET CENTER (0°)</button>
 </div>
 
-<!-- ── CAMERA / MEDIAPIPE PANEL ── -->
 <div id="cam-panel">
   <video id="cam-video" autoplay playsinline muted></video>
   <canvas id="cam-canvas"></canvas>
@@ -332,282 +224,288 @@ body::before{content:'';position:absolute;inset:0;pointer-events:none;
     <div id="gesture-label">SHOW YOUR HAND</div>
   </div>
   <button id="cam-close" onclick="closeCamera()">✕</button>
-  <div id="cam-status">1=FWD · 2=REV · 3=LEFT · 4=RIGHT · 0=STOP</div>
 </div>
 
-<!-- ── JOYSTICK LEFT (Steer) ── -->
-<div class="joystick-zone" id="joy-steer" style="bottom:max(30px,env(safe-area-inset-bottom));left:20px;">
+<div id="edit-toolbar">
+  <span>SCALE</span>
+  <input type="range" id="edit-slider" min="0.5" max="2" step="0.05" value="1" oninput="updateSelectedScale(this.value)">
+  <button id="edit-done-btn" onclick="toggleEditMode()">DONE</button>
+</div>
+
+<div class="draggable" id="joy-steer-wrap" style="bottom:40px; left:40px;" data-scale="1">
   <div class="joystick-base" id="joy-steer-base">
     <div class="joystick-knob" id="joy-steer-knob"></div>
     <span class="joystick-label">STEER</span>
   </div>
 </div>
 
-<!-- ── JOYSTICK RIGHT (Throttle) ── -->
-<div class="joystick-zone" id="joy-throttle" style="bottom:max(30px,env(safe-area-inset-bottom));right:20px;">
+<div class="draggable" id="joy-throttle-wrap" style="bottom:40px; right:40px;" data-scale="1">
   <div class="joystick-base" id="joy-throttle-base">
     <div class="joystick-knob" id="joy-throttle-knob"></div>
     <span class="joystick-label">THROTTLE</span>
   </div>
 </div>
 
-<!-- ── ICON SWAP WIDGETS (hidden in joystick mode, shown in button mode) ── -->
-<div class="widget" id="func-left"  data-icon="left"  style="display:none;bottom:60px;left:20px;"><div class="control-btn"></div></div>
-<div class="widget" id="func-right" data-icon="right" style="display:none;bottom:60px;left:110px;"><div class="control-btn"></div></div>
-<div class="widget" id="func-brake" data-icon="brake" style="display:none;bottom:60px;right:110px;"><div class="control-btn"></div></div>
-<div class="widget" id="func-gas"   data-icon="gas"   style="display:none;bottom:60px;right:20px;"><div class="control-btn"></div></div>
-
-<!-- INDICATORS -->
-<div id="indicators">
-  <div class="ind" id="ind-fwd"><div class="ind-dot"></div>FWD</div>
-  <div class="ind" id="ind-left"><div class="ind-dot"></div>LEFT</div>
-  <div class="ind" id="ind-right"><div class="ind-dot"></div>RIGHT</div>
-  <div class="ind rev" id="ind-rev"><div class="ind-dot"></div>REV</div>
-</div>
-<div id="gamepad-ind">🎮 PS4 CONNECTED</div>
+<div class="draggable" id="btn-left" data-icon="left" style="display:none; bottom:60px; left:30px;" data-scale="1"><div class="control-btn"></div></div>
+<div class="draggable" id="btn-right" data-icon="right" style="display:none; bottom:60px; left:120px;" data-scale="1"><div class="control-btn"></div></div>
+<div class="draggable" id="btn-brake" data-icon="brake" style="display:none; bottom:60px; right:120px;" data-scale="1"><div class="control-btn"></div></div>
+<div class="draggable" id="btn-gas" data-icon="gas" style="display:none; bottom:60px; right:30px;" data-scale="1"><div class="control-btn"></div></div>
 
 <script>
-// ══════════════════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════════════════
+// ==================== STATE VARIABLES ====================
 let ws = null, connected = false, sendTimer = null;
+const ESP_IP = '192.168.4.1'; 
 let throttleVal = 0, steerVal = 0, speedMul = 0.7;
-let gyroOn = false, gyroInvert = false, centerBeta = 0, centerGamma = 0;
-let editMode = false;
-let gestureMode = false;
-let gamepadMode = false;
-let cameraStream = null;
-let handsModel = null;
-let lastFingerCount = -1;
-const ESP_IP = '192.168.4.1';   // ← ESP32 hotspot IP (সাধারণত এটাই থাকে)
 
-// ══════════════════════════════════════════════════════
-//  WIFI WEBSOCKET
-// ══════════════════════════════════════════════════════
+// Edit & Layout State
+let editMode = false, selectedEl = null;
+let dragStartX = 0, dragStartY = 0, elStartX = 0, elStartY = 0;
+
+// Modules State
+let gyroOn = false, gyroInvert = false, centerBeta = 0, centerGamma = 0;
+let gestureMode = false, cameraStream = null, handsModel = null, lastFingerCount = -1;
+
+// ==================== WEBSOCKET ====================
 function toggleConnect() {
-  if (connected) {
-    ws && ws.close();
-    return;
-  }
+  if (connected) { ws && ws.close(); return; }
   try {
     ws = new WebSocket(`ws://${ESP_IP}/ws`);
-    ws.onopen = onConn;
-    ws.onclose = onDisc;
-    ws.onerror = () => { onDisc(); };
-  } catch(e) { console.error(e); }
+    ws.onopen = () => {
+      connected = true;
+      document.getElementById('dot').classList.add('on');
+      document.getElementById('conn-label').textContent = 'CONNECTED';
+      document.getElementById('conn-btn').textContent = 'DISCONNECT';
+      document.getElementById('conn-btn').classList.add('on');
+      clearInterval(sendTimer);
+      sendTimer = setInterval(sendData, 50);
+    };
+    ws.onclose = ws.onerror = () => {
+      connected = false; ws = null; clearInterval(sendTimer);
+      throttleVal = steerVal = 0;
+      document.getElementById('dot').classList.remove('on');
+      document.getElementById('conn-label').textContent = 'DISCONNECTED';
+      document.getElementById('conn-btn').textContent = 'CONNECT';
+      document.getElementById('conn-btn').classList.remove('on');
+      updateUI();
+    };
+  } catch(e) {}
 }
 
-function onConn() {
-  connected = true;
-  document.getElementById('dot').classList.add('on');
-  document.getElementById('conn-label').textContent = 'CONNECTED';
-  document.getElementById('conn-btn').textContent = 'DISCONNECT';
-  document.getElementById('conn-btn').classList.add('on');
-  sendTimer = setInterval(sendData, 50);
-}
-
-function onDisc() {
-  connected = false; ws = null;
-  clearInterval(sendTimer);
-  throttleVal = 0; steerVal = 0;
-  document.getElementById('dot').classList.remove('on');
-  document.getElementById('conn-label').textContent = 'DISCONNECTED';
-  document.getElementById('conn-btn').textContent = 'CONNECT';
-  document.getElementById('conn-btn').classList.remove('on');
-  updateUI();
-}
-
-// ══════════════════════════════════════════════════════
-//  SEND DATA
-// ══════════════════════════════════════════════════════
 function clamp(v, mn, mx) { return Math.max(mn, Math.min(mx, v)); }
 
 function sendData() {
-  // Joystick / gyro / gesture already update throttleVal & steerVal continuously
-  // Gamepad polling
-  if (gamepadMode) pollGamepad();
-
   const t = Math.round(throttleVal * speedMul);
   const s = Math.round(steerVal);
   const L = clamp(t + s, -100, 100);
   const R = clamp(t - s, -100, 100);
-
-  if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.send(`${L},${R}`);
-  }
+  if (ws && ws.readyState === WebSocket.OPEN) ws.send(`${L},${R}`);
   updateUI(t, s);
 }
 
-function updateSpeed(v) {
-  speedMul = v / 100;
-  document.getElementById('speed-val').textContent = v + '%';
-}
-
-function updateUI(t = 0, s = 0) {
+function updateSpeed(v) { speedMul = v/100; document.getElementById('speed-val').textContent = v+'%'; }
+function updateUI(t=0, s=0) {
   const el = document.getElementById('speed-num');
   el.textContent = Math.abs(t);
-  el.className = t > 5 ? 'fwd' : t < -5 ? 'bwd' : '';
-  document.getElementById('ind-fwd').classList.toggle('active', t > 5);
-  document.getElementById('ind-rev').classList.toggle('active', t < -5);
-  document.getElementById('ind-left').classList.toggle('active', s < -10);
-  document.getElementById('ind-right').classList.toggle('active', s > 10);
+  el.className = t > 5 ? 'fwd' : (t < -5 ? 'bwd' : '');
 }
 
-// ══════════════════════════════════════════════════════
-//  LEFT JOYSTICK → STEER
-// ══════════════════════════════════════════════════════
-setupJoystick(
-  document.getElementById('joy-steer'),
-  document.getElementById('joy-steer-base'),
-  document.getElementById('joy-steer-knob'),
-  'steer'   // axis
-);
+// ==================== LAYOUT & EDIT MODE ====================
+function toggleEditMode() {
+  editMode = !editMode;
+  document.getElementById('edit-btn').classList.toggle('active', editMode);
+  document.getElementById('edit-toolbar').style.display = editMode ? 'flex' : 'none';
+  
+  const draggables = document.querySelectorAll('.draggable');
+  draggables.forEach(el => {
+    el.classList.toggle('editing', editMode);
+    if (!editMode) el.classList.remove('selected');
+  });
+  
+  if (!editMode) {
+    selectedEl = null;
+    saveLayout();
+  }
+}
 
-// ══════════════════════════════════════════════════════
-//  RIGHT JOYSTICK → THROTTLE (only vertical)
-// ══════════════════════════════════════════════════════
-setupJoystick(
-  document.getElementById('joy-throttle'),
-  document.getElementById('joy-throttle-base'),
-  document.getElementById('joy-throttle-knob'),
-  'throttle'
-);
+function selectElement(el) {
+  if (!editMode) return;
+  document.querySelectorAll('.draggable').forEach(e => e.classList.remove('selected'));
+  selectedEl = el;
+  el.classList.add('selected');
+  const scale = parseFloat(el.getAttribute('data-scale')) || 1;
+  document.getElementById('edit-slider').value = scale;
+}
 
-function setupJoystick(zone, base, knob, axis) {
-  const RADIUS = () => base.offsetWidth / 2 - knob.offsetWidth / 2;
+function updateSelectedScale(val) {
+  if (!selectedEl) return;
+  selectedEl.setAttribute('data-scale', val);
+  selectedEl.style.transform = `scale(${val})`;
+}
+
+// Dragging Logic
+document.addEventListener('touchstart', e => {
+  if (!editMode) return;
+  const target = e.target.closest('.draggable');
+  if (target) {
+    e.preventDefault(); // Prevent accidental scroll/click
+    selectElement(target);
+    const touch = e.touches[0];
+    dragStartX = touch.clientX;
+    dragStartY = touch.clientY;
+    const rect = target.getBoundingClientRect();
+    // Use offset to prevent jumping
+    elStartX = rect.left;
+    elStartY = rect.top;
+  }
+}, {passive:false});
+
+document.addEventListener('touchmove', e => {
+  if (!editMode || !selectedEl) return;
+  e.preventDefault();
+  const touch = e.touches[0];
+  const dx = touch.clientX - dragStartX;
+  const dy = touch.clientY - dragStartY;
+  
+  selectedEl.style.left = (elStartX + dx) + 'px';
+  selectedEl.style.top = (elStartY + dy) + 'px';
+  selectedEl.style.right = 'auto';
+  selectedEl.style.bottom = 'auto';
+}, {passive:false});
+
+// Save / Load
+function saveLayout() {
+  const layout = {};
+  document.querySelectorAll('.draggable').forEach(el => {
+    layout[el.id] = {
+      left: el.style.left, top: el.style.top, right: el.style.right, bottom: el.style.bottom,
+      scale: el.getAttribute('data-scale')
+    };
+  });
+  localStorage.setItem('rc_v5_layout', JSON.stringify(layout));
+}
+
+function loadLayout() {
+  try {
+    const data = JSON.parse(localStorage.getItem('rc_v5_layout'));
+    if (!data) return;
+    for (let id in data) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.style.left = data[id].left; el.style.top = data[id].top;
+        el.style.right = data[id].right; el.style.bottom = data[id].bottom;
+        const scale = data[id].scale || 1;
+        el.setAttribute('data-scale', scale);
+        el.style.transform = `scale(${scale})`;
+      }
+    }
+  } catch(e){}
+}
+
+// ==================== JOYSTICK LOGIC ====================
+function setupJoystick(wrapper, base, knob, axis) {
   let active = false, touchId = null, cx = 0, cy = 0;
+  const RADIUS = () => (base.offsetWidth / 2) - (knob.offsetWidth / 2);
 
   function start(px, py, id) {
+    if (editMode) return;
     active = true; touchId = id;
-    const r = base.getBoundingClientRect();
-    cx = r.left + r.width / 2;
-    cy = r.top + r.height / 2;
-    move(px, py);
+    const rect = base.getBoundingClientRect();
+    cx = rect.left + rect.width / 2;
+    cy = rect.top + rect.height / 2;
     base.classList.add('active');
+    move(px, py);
   }
 
   function move(px, py) {
     if (!active) return;
-    const dx = px - cx, dy = py - cy;
+    const scale = parseFloat(wrapper.getAttribute('data-scale')) || 1;
+    // Adjust touch math for scale
+    const dx = (px - cx) / scale;
+    const dy = (py - cy) / scale;
+    
     const dist = Math.sqrt(dx*dx + dy*dy);
     const R = RADIUS();
     const clamped = Math.min(dist, R);
     const angle = Math.atan2(dy, dx);
+    
     const kx = Math.cos(angle) * clamped;
     const ky = Math.sin(angle) * clamped;
-    knob.style.left = (base.offsetWidth/2 + kx - knob.offsetWidth/2) + 'px';
-    knob.style.top  = (base.offsetHeight/2 + ky - knob.offsetHeight/2) + 'px';
+    
+    knob.style.transform = `translate(${kx}px, ${ky}px)`;
+    
+    const nx = kx / R; // -1 to 1
+    const ny = -ky / R; // -1 to 1 (Up is positive)
 
-    const nx = kx / R; // -1..1
-    const ny = -ky / R; // -1..1 (up positive)
-
-    if (axis === 'steer') {
-      if (!gyroOn) steerVal = Math.round(clamp(nx * 100, -100, 100));
-    } else {
+    if (axis === 'steer' && !gyroOn) {
+      steerVal = Math.round(clamp(nx * 100, -100, 100));
+    } else if (axis === 'throttle') {
       throttleVal = Math.round(clamp(ny * 100, -100, 100));
-      base.classList.remove('fwd-active','bwd-active');
-      if (ny > 0.05) base.classList.add('fwd-active');
-      else if (ny < -0.05) base.classList.add('bwd-active');
     }
   }
 
   function end() {
     active = false; touchId = null;
-    knob.style.left = (base.offsetWidth/2 - knob.offsetWidth/2) + 'px';
-    knob.style.top  = (base.offsetHeight/2 - knob.offsetHeight/2) + 'px';
-    base.classList.remove('active','fwd-active','bwd-active');
+    knob.style.transform = `translate(0px, 0px)`;
+    base.classList.remove('active');
     if (axis === 'steer' && !gyroOn) steerVal = 0;
     if (axis === 'throttle') throttleVal = 0;
   }
 
-  zone.addEventListener('touchstart', e => {
-    e.preventDefault();
-    const t = e.changedTouches[0];
-    start(t.clientX, t.clientY, t.identifier);
-  }, {passive:false});
-
-  zone.addEventListener('touchmove', e => {
-    e.preventDefault();
-    for (const t of e.changedTouches) {
-      if (t.identifier === touchId) move(t.clientX, t.clientY);
-    }
-  }, {passive:false});
-
-  zone.addEventListener('touchend', e => { e.preventDefault(); end(); }, {passive:false});
-  zone.addEventListener('touchcancel', e => { e.preventDefault(); end(); }, {passive:false});
-
-  // Mouse support (PC)
-  zone.addEventListener('mousedown', e => { start(e.clientX, e.clientY, 'mouse'); });
-  document.addEventListener('mousemove', e => { if (active && touchId==='mouse') move(e.clientX, e.clientY); });
-  document.addEventListener('mouseup', () => { if (touchId==='mouse') end(); });
-
-  // Init knob center
-  requestAnimationFrame(() => {
-    knob.style.left = (base.offsetWidth/2 - knob.offsetWidth/2) + 'px';
-    knob.style.top  = (base.offsetHeight/2 - knob.offsetHeight/2) + 'px';
-  });
+  base.addEventListener('touchstart', e => { e.preventDefault(); const t=e.changedTouches[0]; start(t.clientX, t.clientY, t.identifier); }, {passive:false});
+  document.addEventListener('touchmove', e => { if(!active)return; for(let t of e.changedTouches){ if(t.identifier===touchId){ e.preventDefault(); move(t.clientX, t.clientY); }}}, {passive:false});
+  document.addEventListener('touchend', e => { if(!active)return; for(let t of e.changedTouches){ if(t.identifier===touchId) end(); }});
+  document.addEventListener('touchcancel', e => { if(active) end(); });
 }
 
-// ══════════════════════════════════════════════════════
-//  GYROSCOPE
-// ══════════════════════════════════════════════════════
-function togglePanel(id, btnId) {
-  const p = document.getElementById(id);
-  const showing = p.classList.contains('show');
-  // Close all panels first
-  document.querySelectorAll('.panel').forEach(x => x.classList.remove('show'));
-  document.querySelectorAll('.icon-btn').forEach(x => x.classList.remove('active'));
-  if (!showing) {
-    p.classList.add('show');
-    btnId && document.getElementById(btnId).classList.add('active');
+setupJoystick(document.getElementById('joy-steer-wrap'), document.getElementById('joy-steer-base'), document.getElementById('joy-steer-knob'), 'steer');
+setupJoystick(document.getElementById('joy-throttle-wrap'), document.getElementById('joy-throttle-base'), document.getElementById('joy-throttle-knob'), 'throttle');
+
+// ==================== PANELS ====================
+function openPanel(id) {
+  if (editMode) return;
+  document.getElementById('panel-overlay').classList.add('show');
+  document.getElementById(id).classList.add('show');
+}
+function closeAllPanels() {
+  document.getElementById('panel-overlay').classList.remove('show');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('show'));
+}
+
+// ==================== GYROSCOPE ====================
+function toggleGyroState() {
+  if(gyroOn) {
+    window.removeEventListener('deviceorientation', onGyro);
+    gyroOn = false; steerVal = 0;
+    document.getElementById('gyro-txt').textContent = 'STATUS: OFF';
+    document.getElementById('gyro-toggle-btn').textContent = 'START';
+    document.getElementById('gyro-toggle-btn').style.borderColor = 'var(--blue)';
+    document.getElementById('gyro-toggle-btn').style.color = 'var(--blue)';
+    document.getElementById('gyro-btn').classList.remove('active');
+    document.getElementById('gyro-level-ind').style.transform = `translateX(0px)`;
+  } else {
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+      DeviceOrientationEvent.requestPermission().then(r => { if(r==='granted') startGyro(); }).catch(console.error);
+    } else { startGyro(); }
   }
 }
 
-function toggleGyroState() {
-  gyroOn ? stopGyro() : startGyro();
-}
-
 function startGyro() {
-  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-    DeviceOrientationEvent.requestPermission().then(r => {
-      r === 'granted' ? activateGyro() : setGyroError();
-    }).catch(setGyroError);
-  } else { activateGyro(); }
-}
-
-function activateGyro() {
   window.addEventListener('deviceorientation', onGyro);
   gyroOn = true;
-  document.getElementById('gyro-dot').className = 'active';
-  document.getElementById('gyro-txt').textContent = 'ACTIVE';
+  document.getElementById('gyro-txt').textContent = 'STATUS: ACTIVE';
   document.getElementById('gyro-toggle-btn').textContent = 'STOP';
-}
-
-function stopGyro() {
-  gyroOn = false;
-  window.removeEventListener('deviceorientation', onGyro);
-  document.getElementById('gyro-dot').className = '';
-  document.getElementById('gyro-txt').textContent = 'OFF';
-  document.getElementById('gyro-toggle-btn').textContent = 'START';
-  document.getElementById('gyro-level-ind').style.transform = 'translateX(0)';
-  document.getElementById('gyro-tilt').textContent = 'TILT: 0°';
-  steerVal = 0;
-}
-
-function setGyroError() {
-  document.getElementById('gyro-dot').className = 'error';
-  document.getElementById('gyro-txt').textContent = 'DENIED / HTTP';
+  document.getElementById('gyro-toggle-btn').style.borderColor = 'var(--red)';
+  document.getElementById('gyro-toggle-btn').style.color = 'var(--red)';
+  document.getElementById('gyro-btn').classList.add('active');
 }
 
 function calibrateGyro() {
   window.addEventListener('deviceorientation', function calib(e) {
     centerBeta = e.beta || 0; centerGamma = e.gamma || 0;
     window.removeEventListener('deviceorientation', calib);
-    const btn = document.querySelector('#gyro-panel .panel-btn:last-child');
-    const orig = btn.textContent;
-    btn.textContent = 'CENTERED ✓';
-    btn.style.borderColor = 'var(--green)'; btn.style.color = 'var(--green)';
-    setTimeout(() => { btn.textContent = orig; btn.style.borderColor = ''; btn.style.color = ''; }, 1500);
+    const txt = document.getElementById('gyro-txt');
+    txt.textContent = 'CENTER SET ✓';
+    setTimeout(() => { if(gyroOn) txt.textContent = 'STATUS: ACTIVE'; else txt.textContent = 'STATUS: OFF'; }, 1500);
   }, {once:true});
 }
 
@@ -621,104 +519,70 @@ function onGyro(e) {
   if (gyroInvert) tilt = -tilt;
   const dead = 5;
   let g = Math.abs(tilt) < dead ? 0 : tilt - Math.sign(tilt) * dead;
-  steerVal = clamp(Math.round(g * 2.2), -100, 100);
+  steerVal = clamp(Math.round(g * 2.5), -100, 100);
   document.getElementById('gyro-tilt').textContent = `TILT: ${Math.round(tilt)}°`;
-  document.getElementById('gyro-level-ind').style.transform = `translateX(${clamp(tilt/45,-1,1)*80}px)`;
+  document.getElementById('gyro-level-ind').style.transform = `translateX(${clamp(tilt/45, -1, 1)*50}%)`;
 }
 
-// ══════════════════════════════════════════════════════
-//  MEDIAPIPE HAND GESTURE MODE
-// ══════════════════════════════════════════════════════
+// ==================== MEDIAPIPE GESTURE ====================
 async function openCamera() {
+  if (editMode) return;
   document.getElementById('cam-panel').classList.add('show');
-  document.getElementById('mode-badge').textContent = 'GESTURE MODE';
-  document.getElementById('mode-badge').classList.add('show');
-  document.getElementById('cam-btn').classList.add('mode-active');
   gestureMode = true;
-
   try {
-    cameraStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:640,height:480}});
+    cameraStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user', width:640, height:480}});
     const video = document.getElementById('cam-video');
     video.srcObject = cameraStream;
     await video.play();
     loadHandModel(video);
-  } catch(e) {
-    document.getElementById('cam-status').textContent = 'CAMERA ERROR: ' + e.message;
-  }
+  } catch(e) {}
 }
 
 function closeCamera() {
   gestureMode = false;
   document.getElementById('cam-panel').classList.remove('show');
-  document.getElementById('mode-badge').classList.remove('show');
-  document.getElementById('cam-btn').classList.remove('mode-active');
   if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
-  throttleVal = 0; steerVal = 0;
+  throttleVal = steerVal = 0;
 }
 
 async function loadHandModel(video) {
-  document.getElementById('cam-status').textContent = 'LOADING MEDIAPIPE...';
-
-  // Load MediaPipe Hands via CDN
   if (!window.Hands) {
-    await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.js');
-    await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.js');
+    await new Promise(r => { const s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/hands.js'; s.onload=r; document.head.appendChild(s);});
+    await new Promise(r => { const s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.js'; s.onload=r; document.head.appendChild(s);});
   }
-
-  const canvas = document.getElementById('cam-canvas');
-  const ctx = canvas.getContext('2d');
-
-  handsModel = new Hands({locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/${f}`});
+  const canvas = document.getElementById('cam-canvas'), ctx = canvas.getContext('2d');
+  handsModel = new Hands({locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/${f}`});
   handsModel.setOptions({maxNumHands:1, modelComplexity:0, minDetectionConfidence:0.7, minTrackingConfidence:0.5});
 
-  handsModel.onResults(results => {
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  handsModel.onResults(res => {
+    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.save(); ctx.translate(canvas.width,0); ctx.scale(-1,1);
 
-    // Mirror canvas to match mirrored video
-    ctx.save();
-    ctx.translate(canvas.width, 0);
-    ctx.scale(-1, 1);
-
-    if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-      const landmarks = results.multiHandLandmarks[0];
-      drawHand(ctx, landmarks, canvas.width, canvas.height);
-      const count = countFingers(landmarks);
-      applyGesture(count);
-    } else {
-      applyGesture(0);
-    }
+    if (res.multiHandLandmarks && res.multiHandLandmarks.length > 0) {
+      const lm = res.multiHandLandmarks[0];
+      drawHand(ctx, lm, canvas.width, canvas.height);
+      applyGesture(countFingers(lm));
+    } else { applyGesture(0); }
     ctx.restore();
   });
-
-  const mpCamera = new Camera(video, {
-    onFrame: async () => { await handsModel.send({image: video}); },
-    width: 640, height: 480
-  });
-  mpCamera.start();
-  document.getElementById('cam-status').textContent = '1=FWD · 2=REV · 3=LEFT · 4=RIGHT · 0=STOP';
+  new Camera(video, {onFrame: async ()=>{ await handsModel.send({image:video});}, width:640, height:480}).start();
 }
 
-function loadScript(src) {
-  return new Promise((res, rej) => {
-    const s = document.createElement('script'); s.src = src;
-    s.onload = res; s.onerror = rej;
-    document.head.appendChild(s);
-  });
-}
-
-// Finger counting: check if fingertip is above MCP joint (in image coords, lower Y = up)
+// Improved Robust Finger Counting
 function countFingers(lm) {
-  // Thumb: tip (4) vs IP (3) - use x axis (mirrored)
-  const tips = [4, 8, 12, 16, 20];
-  const mids = [3, 6, 10, 14, 18];
   let count = 0;
-  // Thumb (horizontal comparison, mirror corrected)
-  if (lm[4].x < lm[3].x) count++;
-  // Other 4 fingers (vertical)
-  for (let i = 1; i < 5; i++) {
-    if (lm[tips[i]].y < lm[mids[i]].y) count++;
+  const dist = (a, b) => Math.hypot(lm[a].x - lm[b].x, lm[a].y - lm[b].y);
+  
+  // Thumb logic: Is tip(4) further from pinky base(17) than the thumb joint(3)?
+  // This works regardless of hand rotation/mirroring.
+  if (dist(4, 17) > dist(3, 17)) count++;
+  
+  // Other fingers (tip vs PIP joint Y axis)
+  const tips = [8, 12, 16, 20], pips = [6, 10, 14, 18];
+  for (let i = 0; i < 4; i++) {
+    // If the tip is significantly higher than the joint (smaller Y value)
+    if (lm[tips[i]].y < lm[pips[i]].y - 0.02) count++;
   }
   return count;
 }
@@ -731,256 +595,36 @@ function applyGesture(count) {
 
   if (count !== lastFingerCount) {
     lastFingerCount = count;
-    // Reset
-    throttleVal = 0; steerVal = 0;
-    if (count === 1) throttleVal = 80;        // সামনে
-    else if (count === 2) throttleVal = -80;  // পিছনে
-    else if (count === 3) steerVal = -80;     // বামে
-    else if (count === 4) steerVal = 80;      // ডানে
+    throttleVal = steerVal = 0;
+    if (count === 1) throttleVal = 80;
+    else if (count === 2) throttleVal = -80;
+    else if (count === 3) steerVal = -80;
+    else if (count === 4) steerVal = 80;
   }
 }
 
 function drawHand(ctx, lm, w, h) {
-  // Connections
-  const connections = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],
-    [0,9],[9,10],[10,11],[11,12],[0,13],[13,14],[14,15],[15,16],
-    [0,17],[17,18],[18,19],[19,20],[5,9],[9,13],[13,17]];
-  ctx.strokeStyle = 'rgba(0,229,255,0.6)'; ctx.lineWidth = 2;
-  for (const [a,b] of connections) {
-    ctx.beginPath();
-    ctx.moveTo(lm[a].x*w, lm[a].y*h);
-    ctx.lineTo(lm[b].x*w, lm[b].y*h);
-    ctx.stroke();
-  }
-  // Dots
-  for (const p of lm) {
-    ctx.beginPath();
-    ctx.arc(p.x*w, p.y*h, 4, 0, Math.PI*2);
-    ctx.fillStyle = '#00ff88'; ctx.fill();
-  }
+  const cx = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[0,9],[9,10],[10,11],[11,12],[0,13],[13,14],[14,15],[15,16],[0,17],[17,18],[18,19],[19,20],[5,9],[9,13],[13,17]];
+  ctx.strokeStyle = '#00d2ff'; ctx.lineWidth = 3;
+  for (const [a,b] of cx) { ctx.beginPath(); ctx.moveTo(lm[a].x*w,lm[a].y*h); ctx.lineTo(lm[b].x*w,lm[b].y*h); ctx.stroke(); }
+  for (const p of lm) { ctx.beginPath(); ctx.arc(p.x*w, p.y*h, 5, 0, Math.PI*2); ctx.fillStyle='#10b981'; ctx.fill(); }
 }
 
-// ══════════════════════════════════════════════════════
-//  PS4 / GAMEPAD MODE
-// ══════════════════════════════════════════════════════
-window.addEventListener('gamepadconnected', e => {
-  gamepadMode = true;
-  document.getElementById('gamepad-ind').classList.add('show');
-  console.log('Gamepad:', e.gamepad.id);
-});
-window.addEventListener('gamepaddisconnected', () => {
-  gamepadMode = false;
-  document.getElementById('gamepad-ind').classList.remove('show');
-  throttleVal = 0; steerVal = 0;
-});
-
-function pollGamepad() {
-  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
-  for (const pad of pads) {
-    if (!pad) continue;
-    // PS4: L2=axes[2] or buttons[6], R2=axes[5] or buttons[7]
-    // Left stick X = axes[0]
-    const L2 = pad.buttons[6] ? pad.buttons[6].value : Math.max(0, (pad.axes[2]+1)/2);
-    const R2 = pad.buttons[7] ? pad.buttons[7].value : Math.max(0, (pad.axes[5]+1)/2);
-    const leftStickX = pad.axes[0]; // -1..1
-
-    throttleVal = clamp(Math.round((R2 - L2) * 100), -100, 100);
-    steerVal    = clamp(Math.round(leftStickX * 100), -100, 100);
-    break;
-  }
-}
-
-// ══════════════════════════════════════════════════════
-//  ICON SWAP BUTTON MODE (for when user toggles)
-// ══════════════════════════════════════════════════════
-const ICONS = {
-  left:  `<svg viewBox="0 0 24 24" width="30" height="30"><path d="M15 18l-6-6 6-6"/></svg>`,
-  right: `<svg viewBox="0 0 24 24" width="30" height="30"><path d="M9 18l6-6-6-6"/></svg>`,
-  brake: `<svg viewBox="0 0 24 24" width="38" height="26"><path d="M4 7h16a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="6" y1="15" x2="18" y2="15"/></svg><span class="btn-label">BRAKE</span>`,
-  gas:   `<svg viewBox="0 0 24 24" width="26" height="38"><path d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><line x1="10" y1="7" x2="14" y2="7"/><line x1="10" y1="12" x2="14" y2="12"/><line x1="10" y1="17" x2="14" y2="17"/></svg><span class="btn-label">GAS</span>`
-};
-
-function renderIcons() {
-  document.querySelectorAll('.widget').forEach(w => {
-    const t = w.getAttribute('data-icon');
-    if (ICONS[t]) w.querySelector('.control-btn').innerHTML = ICONS[t];
-  });
-}
-
-// Button mode bindings
-function bindPress(elId, downCb, upCb) {
-  const el = document.getElementById(elId);
-  if (!el) return;
-  el.addEventListener('touchstart', e => { e.preventDefault(); if(!editMode) downCb(); }, {passive:false});
-  el.addEventListener('touchend',   e => { e.preventDefault(); if(!editMode) upCb(); }, {passive:false});
-  el.addEventListener('touchcancel',e => { e.preventDefault(); if(!editMode) upCb(); }, {passive:false});
-  el.addEventListener('mousedown',  () => { if(!editMode) downCb(); });
-  el.addEventListener('mouseup',    () => { if(!editMode) upCb(); });
-  el.addEventListener('mouseleave', () => { if(!editMode) upCb(); });
-}
-
-let gasDown=false,brakeDown=false,leftDown=false,rightDown=false;
-
-bindPress('func-gas',
-  ()=>{ gasDown=true;  document.querySelector('#func-gas .control-btn').classList.add('pressed'); },
-  ()=>{ gasDown=false; document.querySelector('#func-gas .control-btn').classList.remove('pressed'); }
-);
-bindPress('func-brake',
-  ()=>{ brakeDown=true;  document.querySelector('#func-brake .control-btn').classList.add('pressed'); },
-  ()=>{ brakeDown=false; document.querySelector('#func-brake .control-btn').classList.remove('pressed'); }
-);
-bindPress('func-left',
-  ()=>{ leftDown=true;  document.querySelector('#func-left .control-btn').classList.add('pressed'); },
-  ()=>{ leftDown=false; document.querySelector('#func-left .control-btn').classList.remove('pressed'); }
-);
-bindPress('func-right',
-  ()=>{ rightDown=true;  document.querySelector('#func-right .control-btn').classList.add('pressed'); },
-  ()=>{ rightDown=false; document.querySelector('#func-right .control-btn').classList.remove('pressed'); }
-);
-
-// Button mode sends its own ramp (used when joystick hidden)
-function buttonModeRamp() {
-  if (gasDown)        throttleVal = clamp(throttleVal+8,-100,100);
-  else if (brakeDown) throttleVal = clamp(throttleVal-8,-100,100);
-  else if (throttleVal>0) throttleVal = Math.max(0, throttleVal-6);
-  else if (throttleVal<0) throttleVal = Math.min(0, throttleVal+6);
-  if (!gyroOn) {
-    if (leftDown)        steerVal = clamp(steerVal-15,-100,100);
-    else if (rightDown)  steerVal = clamp(steerVal+15,-100,100);
-    else if (steerVal>0) steerVal = Math.max(0, steerVal-20);
-    else if (steerVal<0) steerVal = Math.min(0, steerVal+20);
-  }
-}
-
-// ══════════════════════════════════════════════════════
-//  EDIT / DRAG (button widgets only)
-// ══════════════════════════════════════════════════════
-let dragging=null, dragOffX=0, dragOffY=0, startL='',startT='',startR='',startB='';
-
-function toggleEdit() {
-  editMode = !editMode;
-  document.querySelectorAll('.widget').forEach(w => w.classList.toggle('editing', editMode));
-  document.getElementById('edit-btn').classList.toggle('active', editMode);
-  if (!editMode) saveLayout();
-}
-
-function getCenter(el) {
-  const r = el.getBoundingClientRect();
-  return {x: r.left+r.width/2, y: r.top+r.height/2};
-}
-function checkSwap(el) {
-  const c = getCenter(el);
-  document.querySelectorAll('.widget').forEach(w => {
-    if (w===el) return;
-    const r = w.getBoundingClientRect();
-    if (c.x>r.left&&c.x<r.right&&c.y>r.top&&c.y<r.bottom) {
-      const tmp = w.getAttribute('data-icon');
-      w.setAttribute('data-icon', el.getAttribute('data-icon'));
-      el.setAttribute('data-icon', tmp);
-      el.style.left=startL; el.style.top=startT; el.style.right=startR; el.style.bottom=startB;
-      renderIcons();
-    }
-  });
-}
-
-document.addEventListener('touchstart', e => {
-  if (!editMode) return;
-  const t = e.touches[0];
-  const w = document.elementFromPoint(t.clientX,t.clientY)?.closest('.widget');
-  if (w) { e.preventDefault(); dragging=w; const r=w.getBoundingClientRect(); dragOffX=t.clientX-r.left; dragOffY=t.clientY-r.top; startL=w.style.left;startT=w.style.top;startR=w.style.right;startB=w.style.bottom; }
-},{passive:false});
-document.addEventListener('touchmove', e => {
-  if (!editMode||!dragging) return; e.preventDefault();
-  const t=e.touches[0]; dragging.style.left=(t.clientX-dragOffX)+'px'; dragging.style.top=(t.clientY-dragOffY)+'px'; dragging.style.right='auto'; dragging.style.bottom='auto';
-},{passive:false});
-document.addEventListener('touchend', ()=>{ if(editMode&&dragging){checkSwap(dragging);saveLayout();dragging=null;}});
-document.addEventListener('mousedown', e=>{ if(!editMode)return; const w=e.target.closest('.widget'); if(w){dragging=w;const r=w.getBoundingClientRect();dragOffX=e.clientX-r.left;dragOffY=e.clientY-r.top;startL=w.style.left;startT=w.style.top;startR=w.style.right;startB=w.style.bottom;}});
-document.addEventListener('mousemove', e=>{ if(!editMode||!dragging)return; dragging.style.left=(e.clientX-dragOffX)+'px'; dragging.style.top=(e.clientY-dragOffY)+'px'; dragging.style.right='auto'; dragging.style.bottom='auto';});
-document.addEventListener('mouseup', ()=>{ if(editMode&&dragging){checkSwap(dragging);saveLayout();dragging=null;}});
-
-// ══════════════════════════════════════════════════════
-//  LAYOUT SAVE / LOAD
-// ══════════════════════════════════════════════════════
-function saveLayout() {
-  const l={};
-  document.querySelectorAll('.widget').forEach(w => {
-    l[w.id]={left:w.style.left,top:w.style.top,right:w.style.right,bottom:w.style.bottom,icon:w.getAttribute('data-icon')};
-  });
-  try{localStorage.setItem('rc_v4_layout',JSON.stringify(l));}catch(e){}
-}
-function loadLayout() {
-  try {
-    const s=localStorage.getItem('rc_v4_layout');
-    if(!s){renderIcons();return;}
-    const l=JSON.parse(s);
-    Object.entries(l).forEach(([id,p])=>{
-      const el=document.getElementById(id);
-      if(el){el.style.left=p.left;el.style.top=p.top;el.style.right=p.right;el.style.bottom=p.bottom;if(p.icon)el.setAttribute('data-icon',p.icon);}
-    });
-    renderIcons();
-  }catch(e){renderIcons();}
-}
-
-// ══════════════════════════════════════════════════════
-//  FULLSCREEN
-// ══════════════════════════════════════════════════════
+// ==================== INIT ====================
 async function goFullscreen() {
-  try {
-    if (!document.fullscreenElement) {
-      await (document.documentElement.requestFullscreen?.({navigationUI:'hide'}) || document.documentElement.webkitRequestFullscreen?.());
-      await screen.orientation?.lock('landscape').catch(()=>{});
-    } else {
-      await document.exitFullscreen?.();
-    }
-  } catch(e){}
+  if (!document.fullscreenElement) {
+    await document.documentElement.requestFullscreen?.().catch(()=>{});
+    screen.orientation?.lock('landscape').catch(()=>{});
+  } else document.exitFullscreen?.();
 }
 
-// ══════════════════════════════════════════════════════
-//  MAIN SEND LOOP (override to include button ramp)
-// ══════════════════════════════════════════════════════
-// Replace interval: include button ramp when joysticks are hidden
-clearInterval(sendTimer);  // clear default
-function mainLoop() {
-  if (gamepadMode) pollGamepad();
-  // Button ramp (only if widgets are visible = joystick zone hidden)
-  const joyVisible = document.getElementById('joy-steer').style.display !== 'none';
-  if (!joyVisible) buttonModeRamp();
-
-  const t = Math.round(throttleVal * speedMul);
-  const s = Math.round(steerVal);
-  const L = clamp(t + s, -100, 100);
-  const R = clamp(t - s, -100, 100);
-  if (ws && ws.readyState === WebSocket.OPEN) ws.send(`${L},${R}`);
-  updateUI(t, s);
-}
-
-// Reconnect sendTimer on connect
-function onConn2() {
-  onConn();
-  clearInterval(sendTimer);
-  sendTimer = setInterval(mainLoop, 50);
-}
-// Patch toggleConnect to use onConn2
-const _origToggle = toggleConnect;
-window.toggleConnect = function() {
-  if (connected) { ws && ws.close(); return; }
-  try {
-    ws = new WebSocket(`ws://${ESP_IP}/ws`);
-    ws.onopen = onConn2;
-    ws.onclose = onDisc;
-    ws.onerror = () => { onDisc(); };
-  } catch(e) { console.error(e); }
-};
-
-// ══════════════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════════════
 loadLayout();
-document.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('gesturestart', e => e.preventDefault());
-
-// Also run a standalone loop for UI even when disconnected
-setInterval(() => { updateUI(Math.round(throttleVal*speedMul), Math.round(steerVal)); }, 100);
+// Offline fallback for rendering icons if buttons are shown via console logic
+document.querySelectorAll('.draggable[data-icon]').forEach(el=>{
+  const i=el.dataset.icon; const c=el.querySelector('.control-btn');
+  if(i==='gas') c.innerHTML=`<svg viewBox="0 0 24 24" width="28" height="38"><path d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><line x1="10" y1="7" x2="14" y2="7"/><line x1="10" y1="12" x2="14" y2="12"/><line x1="10" y1="17" x2="14" y2="17"/></svg><span class="btn-label">GAS</span>`;
+  else if(i==='brake') c.innerHTML=`<svg viewBox="0 0 24 24" width="40" height="28"><path d="M4 7h16a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="6" y1="15" x2="18" y2="15"/></svg><span class="btn-label">BRAKE</span>`;
+});
 </script>
 </body>
 </html>
