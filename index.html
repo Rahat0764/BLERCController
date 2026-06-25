@@ -6,274 +6,283 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>RC Pro Controller</title>
+<title>RC Premium Controller</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap');
+/* ── Clean Modern Fonts ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  --bg-color: #020617;
-  --panel-bg: rgba(15, 23, 42, 0.65);
-  --border-color: rgba(0, 229, 255, 0.15);
-  --cyan: #00e5ff;
-  --green: #10b981;
-  --red: #ef4444;
-  --orange: #f59e0b;
-  --purple: #8b5cf6;
-  --text-main: #f8fafc;
-  --text-muted: #64748b;
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  --bg-color: #0d0f12;
+  --surface: #1a1d24;
+  --surface-glass: rgba(26, 29, 36, 0.75);
+  --border: rgba(255, 255, 255, 0.08);
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --primary: #3b82f6; /* Elegant Blue */
+  --success: #10b981; /* Soft Green */
+  --danger: #ef4444;  /* Soft Red */
+  --shadow-sm: 0 4px 12px rgba(0,0,0,0.3);
+  --shadow-lg: 0 16px 40px rgba(0,0,0,0.6);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { width: 100vw; height: 100vh; background: var(--bg-color); overflow: hidden; font-family: 'Rajdhani', sans-serif; user-select: none; color: var(--text-main); touch-action: none; }
+html, body { width: 100vw; height: 100vh; background: var(--bg-color); overflow: hidden; font-family: 'Inter', sans-serif; user-select: none; color: var(--text-main); touch-action: none; }
 
-/* Background Grid & FX */
-body::before {
-  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
-  background: 
-    radial-gradient(circle at center, rgba(0, 229, 255, 0.08) 0%, transparent 60%),
-    linear-gradient(rgba(0, 229, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
-  background-size: 100% 100%, 40px 40px, 40px 40px;
-}
-body::after {
-  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
-  box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
-}
+/* Subtle Background Gradient */
+body::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at top, rgba(59, 130, 246, 0.05) 0%, transparent 70%); pointer-events: none; z-index: 0; }
 
-/* ── HEADER / TOPBAR ── */
-#topbar {
-  position: fixed; top: 0; left: 0; right: 0; height: max(64px, env(safe-area-inset-top));
+/* ── TOP NAVIGATION ── */
+#top-nav {
+  position: fixed; top: 0; left: 0; right: 0; height: max(60px, env(safe-area-inset-top));
   display: flex; align-items: center; justify-content: space-between;
-  padding: env(safe-area-inset-top) max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left));
-  background: linear-gradient(180deg, rgba(2,6,23,0.9) 0%, transparent 100%);
-  z-index: 200; gap: 12px;
+  padding: env(safe-area-inset-top) max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-area-inset-left));
+  background: linear-gradient(180deg, rgba(13,15,18,0.9) 0%, transparent 100%);
+  z-index: 200; pointer-events: none;
 }
-#connect-btn {
-  display: flex; align-items: center; gap: 10px; background: var(--panel-bg);
-  border: 1px solid var(--border-color); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-  padding: 8px 16px; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; flex-shrink: 0;
-}
-#connect-btn:active { transform: scale(0.95); }
-.status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--red); box-shadow: 0 0 10px var(--red); transition: 0.3s; }
-.status-text { font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 700; color: var(--red); letter-spacing: 2px; }
-#connect-btn.connected { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 20px rgba(16,185,129,0.1); }
-#connect-btn.connected .status-dot { background: var(--green); box-shadow: 0 0 12px var(--green); }
-#connect-btn.connected .status-text { color: var(--green); }
+.nav-group { display: flex; align-items: center; gap: 12px; pointer-events: auto; }
 
-.tools { display: flex; gap: 8px; align-items: center; overflow-x: visible; }
-.icon-btn {
-  width: 44px; height: 44px; border-radius: 12px; background: var(--panel-bg); border: 1px solid var(--border-color);
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: var(--cyan);
-  display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+/* Clean Connect Button */
+#connect-btn {
+  display: flex; align-items: center; gap: 10px; background: var(--surface-glass);
+  border: 1px solid var(--border); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  padding: 8px 16px; border-radius: 100px; cursor: pointer; transition: 0.2s; box-shadow: var(--shadow-sm);
 }
-.icon-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.icon-btn:active { transform: scale(0.9); background: rgba(0, 229, 255, 0.2); }
-.icon-btn.active { background: rgba(0, 229, 255, 0.15); box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); border-color: var(--cyan); }
-.icon-btn.edit-active { color: var(--orange); border-color: var(--orange); box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
-.icon-btn.gyro-active { color: var(--purple); border-color: var(--purple); box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+#connect-btn:active { transform: scale(0.96); background: rgba(255,255,255,0.05); }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); transition: 0.3s; }
+.status-text { font-size: 13px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px; }
+
+#connect-btn.connected { border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.05); }
+#connect-btn.connected .status-dot { background: var(--success); box-shadow: 0 0 10px var(--success); }
+#connect-btn.connected .status-text { color: var(--success); }
+
+/* Tool Buttons */
+.tool-btn {
+  width: 42px; height: 42px; border-radius: 50%; background: var(--surface-glass); border: 1px solid var(--border);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: var(--text-main);
+  display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; box-shadow: var(--shadow-sm);
+}
+.tool-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.tool-btn:active { transform: scale(0.92); background: rgba(255,255,255,0.1); }
+.tool-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
+.tool-btn.active-edit { background: var(--surface); border-color: var(--text-main); }
 
 /* ── HUD CENTER DISPLAY ── */
-.hud-center {
-  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+.hud-display {
+  position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
   display: flex; flex-direction: column; align-items: center; pointer-events: none; z-index: 10;
 }
-.speed-value {
-  font-family: 'Orbitron', sans-serif; font-size: 120px; font-weight: 900; line-height: 1;
-  color: transparent; -webkit-text-stroke: 2px rgba(255,255,255,0.05); transition: all 0.2s;
-}
-.speed-value.fwd { color: var(--cyan); -webkit-text-stroke: 0; text-shadow: 0 0 40px rgba(0,229,255,0.5); }
-.speed-value.rev { color: var(--red); -webkit-text-stroke: 0; text-shadow: 0 0 40px rgba(239,68,68,0.5); }
-.speed-label { font-size: 14px; font-weight: 700; letter-spacing: 8px; color: var(--text-muted); margin-top: 10px; }
-.invert-badges { display: flex; gap: 10px; margin-top: 10px; }
-.badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; background: rgba(245,158,11,0.1); border: 1px solid var(--orange); color: var(--orange); letter-spacing: 1px; font-weight: 700; display: none; }
+.speed-number { font-size: 80px; font-weight: 700; color: rgba(255,255,255,0.05); line-height: 1; transition: 0.2s; font-variant-numeric: tabular-nums; }
+.speed-number.active { color: var(--text-main); }
+.speed-number.reverse { color: var(--danger); }
+.speed-label { font-size: 12px; font-weight: 500; letter-spacing: 4px; color: rgba(255,255,255,0.3); margin-top: 8px; }
 
-/* ── JOYSTICKS ── */
+/* ── PREMIUM JOYSTICKS ── */
 .draggable { position: fixed; z-index: 50; display: flex; align-items: center; justify-content: center; transform-origin: center; }
-.draggable.editing { cursor: move; z-index: 200; outline: 2px dashed rgba(255,255,255,0.4); border-radius: 50%; background: rgba(255,255,255,0.02); }
-.draggable.editing.selected { outline: 2px solid var(--orange); box-shadow: 0 0 30px rgba(245,158,11,0.3); }
+.draggable.editing { cursor: move; z-index: 200; animation: editPulse 2s infinite; }
+@keyframes editPulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
 .joystick-base {
-  width: 160px; height: 160px; border-radius: 50%; border: 2px solid rgba(0, 229, 255, 0.2);
-  background: radial-gradient(circle, rgba(0, 229, 255, 0.05), rgba(0,0,0,0.8));
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+  width: 150px; height: 150px; border-radius: 50%; 
+  background: var(--surface); border: 1px solid rgba(255,255,255,0.05);
+  box-shadow: inset 0 4px 15px rgba(0,0,0,0.6), 0 4px 10px rgba(0,0,0,0.3);
   position: relative; display: flex; align-items: center; justify-content: center; pointer-events: auto;
 }
-/* Crosshair inside base */
-.joystick-base::before, .joystick-base::after { content: ''; position: absolute; background: rgba(255,255,255,0.05); pointer-events: none; }
-.joystick-base::before { width: 1px; height: 100%; left: 50%; transform: translateX(-50%); }
-.joystick-base::after { height: 1px; width: 100%; top: 50%; transform: translateY(-50%); }
-
-.joystick-base.active { border-color: var(--cyan); box-shadow: 0 0 30px rgba(0, 229, 255, 0.3), inset 0 0 20px rgba(0, 229, 255, 0.2); }
-.joystick-base.active-rev { border-color: var(--red); box-shadow: 0 0 30px rgba(239, 68, 68, 0.3), inset 0 0 20px rgba(239, 68, 68, 0.2); }
-
 .joystick-knob {
-  width: 60px; height: 60px; border-radius: 50%; position: absolute; pointer-events: none;
-  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(0, 229, 255, 0.6) 40%, #000 90%);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.9), inset 0 0 10px rgba(255,255,255,0.5); border: 1px solid rgba(0, 229, 255, 0.5);
+  width: 65px; height: 65px; border-radius: 50%; position: absolute; pointer-events: none;
+  background: linear-gradient(145deg, #2a2d35, #1f2228);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.05);
 }
-.joystick-base.active .joystick-knob { box-shadow: 0 0 25px var(--cyan); }
-.joystick-base.active-rev .joystick-knob { background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(239, 68, 68, 0.6) 40%, #000 90%); box-shadow: 0 0 25px var(--red); border-color: var(--red); }
+.joystick-base.active .joystick-knob { background: linear-gradient(145deg, #3b82f6, #2563eb); box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4), inset 0 2px 4px rgba(255,255,255,0.2); }
+.joystick-base.active-rev .joystick-knob { background: linear-gradient(145deg, #ef4444, #dc2626); box-shadow: 0 8px 20px rgba(220, 38, 38, 0.4), inset 0 2px 4px rgba(255,255,255,0.2); }
 
-/* Animation for returning to center */
-.spring-back { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.spring-back { transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.joystick-title { position: absolute; bottom: -35px; font-size: 11px; font-weight: 600; letter-spacing: 2px; color: var(--text-muted); opacity: 0.5; }
 
-.joystick-label { position: absolute; bottom: -30px; font-family: 'Orbitron', sans-serif; font-size: 12px; letter-spacing: 4px; color: var(--text-muted); font-weight: 700; }
-
-/* ── PANELS & MODALS ── */
-.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 290; opacity: 0; pointer-events: none; transition: 0.3s; }
+/* ── MODALS & MENUS ── */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 290; opacity: 0; pointer-events: none; transition: 0.2s; }
 .overlay.show { opacity: 1; pointer-events: auto; }
 
-.glass-panel {
-  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); opacity: 0; pointer-events: none;
-  background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 20px; padding: 24px;
-  box-shadow: var(--glass-shadow), 0 0 40px rgba(0,229,255,0.1); width: 320px; z-index: 300; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+.modal {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -45%) scale(0.95); opacity: 0; pointer-events: none;
+  background: rgba(22, 25, 31, 0.85); border: 1px solid var(--border); border-radius: 24px; padding: 24px;
+  box-shadow: var(--shadow-lg); width: 320px; z-index: 300; transition: 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
 }
-.glass-panel.show { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: auto; }
+.modal.show { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: auto; }
 
-.panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.panel-title { font-family: 'Orbitron', sans-serif; font-size: 16px; color: #fff; letter-spacing: 2px; }
-.close-btn { background: none; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; transition: 0.2s; }
-.close-btn:hover { color: var(--red); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.modal-title { font-size: 15px; font-weight: 600; color: var(--text-main); letter-spacing: 1px; }
+.close-btn { background: rgba(255,255,255,0.05); border: none; width: 32px; height: 32px; border-radius: 50%; color: var(--text-muted); font-size: 16px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center;}
+.close-btn:active { background: rgba(255,255,255,0.1); color: #fff; }
 
-.panel-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.panel-label { font-size: 13px; font-weight: 700; color: var(--text-muted); letter-spacing: 1px; }
+.menu-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.menu-label { font-size: 13px; font-weight: 500; color: var(--text-muted); }
 
-/* Switches & Sliders */
-.toggle-switch { position: relative; width: 48px; height: 26px; cursor: pointer; }
-.toggle-track { position: absolute; inset: 0; background: rgba(255,255,255,0.1); border-radius: 13px; transition: 0.3s; border: 1px solid rgba(255,255,255,0.1); }
-.toggle-knob { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #9ca3af; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.toggle-switch.on .toggle-track { background: rgba(0, 229, 255, 0.2); border-color: var(--cyan); }
-.toggle-switch.on .toggle-knob { left: 25px; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+/* Segmented Control (Radio) */
+.segmented-control { display: flex; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 4px; gap: 4px; }
+.segment-btn { flex: 1; padding: 8px 0; border: none; background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+.segment-btn.active { background: var(--surface-glass); color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 
-input[type=range] { -webkit-appearance: none; width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; outline: none; margin: 10px 0; }
-input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 15px var(--cyan); cursor: pointer; }
+/* iOS style Switch */
+.switch { position: relative; width: 44px; height: 24px; border-radius: 12px; background: rgba(255,255,255,0.1); cursor: pointer; transition: 0.3s; }
+.switch.on { background: var(--success); }
+.switch-knob { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.switch.on .switch-knob { left: 22px; }
 
+/* Custom Slider */
+input[type=range] { -webkit-appearance: none; width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; outline: none; margin: 10px 0; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.3); cursor: pointer; }
+
+/* Primary Button */
 .btn-primary {
-  width: 100%; padding: 12px; background: rgba(0, 229, 255, 0.1); border: 1px solid var(--cyan); color: var(--cyan);
-  font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 2px; border-radius: 10px;
-  cursor: pointer; transition: 0.2s; margin-top: 10px;
+  width: 100%; padding: 14px; background: var(--primary); border: none; color: #fff;
+  font-size: 13px; font-weight: 600; letter-spacing: 1px; border-radius: 12px;
+  cursor: pointer; transition: 0.2s; margin-top: 10px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
-.btn-primary:active { transform: scale(0.95); background: var(--cyan); color: #000; }
-.btn-danger { background: rgba(239, 68, 68, 0.1); border-color: var(--red); color: var(--red); margin-top: 0;}
-.btn-danger:active { background: var(--red); color: #000; }
+.btn-primary:active { transform: scale(0.96); }
+.btn-outline { background: transparent; border: 1px solid var(--border); box-shadow: none; color: var(--text-main); }
+.btn-outline:active { background: rgba(255,255,255,0.05); }
 
-/* ── CAMERA / GESTURE PANEL ── */
+/* ── EDIT MODE BANNER ── */
+#edit-banner {
+  position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+  background: rgba(13,15,18,0.9); border: 1px solid var(--border); padding: 8px 16px; border-radius: 100px;
+  display: none; align-items: center; gap: 16px; z-index: 250; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+}
+.edit-hint { font-size: 12px; font-weight: 500; color: var(--text-muted); }
+.reset-btn { font-size: 11px; background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 6px 12px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
+
+/* ── CAMERA ── */
 #cam-panel { position: fixed; inset: 0; background: #000; z-index: 400; display: none; flex-direction: column; align-items: center; justify-content: center; }
 #cam-panel.show { display: flex; }
-#cam-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-#cam-canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-#cam-ui { position: absolute; top: 30px; display: flex; flex-direction: column; align-items: center; z-index: 10;}
-#finger-count { font-family: 'Orbitron', sans-serif; font-size: 100px; color: var(--green); text-shadow: 0 0 40px var(--green); line-height: 1; }
-#gesture-txt { font-size: 16px; font-weight: 700; letter-spacing: 4px; background: rgba(0,0,0,0.6); padding: 4px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); margin-top: 10px;}
-#cam-close { position: absolute; top: max(20px, env(safe-area-inset-top)); right: 20px; width: 50px; height: 50px; border-radius: 50%; background: rgba(0,0,0,0.5); border: 2px solid #fff; color: #fff; font-size: 24px; z-index: 20; cursor: pointer; }
+#cam-video, #cam-canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+#cam-ui { position: absolute; top: 40px; display: flex; flex-direction: column; align-items: center; z-index: 10;}
+#finger-count { font-size: 80px; font-weight: 700; color: #fff; text-shadow: 0 4px 10px rgba(0,0,0,0.5); line-height: 1; }
+#gesture-txt { font-size: 14px; font-weight: 600; letter-spacing: 2px; background: rgba(0,0,0,0.5); padding: 6px 16px; border-radius: 100px; backdrop-filter: blur(5px); margin-top: 10px; border: 1px solid rgba(255,255,255,0.1);}
 </style>
 </head>
 <body>
 
-<!-- TOPBAR -->
-<div id="topbar">
-  <div id="connect-btn" onclick="toggleConnect()">
-    <div class="status-dot"></div>
-    <span class="status-text" id="conn-text">OFFLINE</span>
+<!-- TOP NAVIGATION -->
+<div id="top-nav">
+  <div class="nav-group">
+    <div id="connect-btn" onclick="toggleConnect()">
+      <div class="status-dot"></div>
+      <span class="status-text" id="conn-text">Connect</span>
+    </div>
   </div>
   
-  <div class="tools">
-    <button class="icon-btn" id="btn-gyro" onclick="openPanel('gyro-modal')">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+  <div class="nav-group">
+    <button class="tool-btn" id="btn-gyro" onclick="openGyroPanel()">
+      <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/><circle cx="12" cy="12" r="3"/></svg>
     </button>
-    <button class="icon-btn" id="btn-cam" onclick="openCamera()">
+    <button class="tool-btn" onclick="openCamera()">
       <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
     </button>
-    <button class="icon-btn" id="btn-edit" onclick="openPanel('edit-modal')">
+    <button class="tool-btn" id="btn-edit" onclick="toggleEditMode()">
       <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
     </button>
-    <button class="icon-btn" onclick="goFullscreen()">
+    <button class="tool-btn" onclick="goFullscreen()">
       <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
     </button>
   </div>
 </div>
 
-<!-- HUD CENTER DISPLAY -->
-<div class="hud-center">
-  <div class="speed-value" id="hud-speed">0</div>
-  <div class="speed-label">THROTTLE</div>
-  <div class="invert-badges">
-    <span class="badge" id="bdg-inv-s">INV STR</span>
-    <span class="badge" id="bdg-inv-t">INV THR</span>
-  </div>
+<!-- EDIT MODE BANNER -->
+<div id="edit-banner">
+  <span class="edit-hint">Tap a joystick to customize</span>
+  <button class="reset-btn" onclick="resetLayout()">Reset Layout</button>
+  <button class="tool-btn active-edit" style="width: 32px; height: 32px;" onclick="toggleEditMode()"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></button>
 </div>
 
-<!-- OVERLAY FOR PANELS -->
-<div class="overlay" id="main-overlay" onclick="closeAllPanels()"></div>
+<!-- HUD -->
+<div class="hud-display">
+  <div class="speed-number" id="hud-speed">0</div>
+  <div class="speed-label">THROTTLE</div>
+</div>
 
-<!-- EDIT / SETTINGS MODAL -->
-<div class="glass-panel" id="edit-modal">
-  <div class="panel-header">
-    <span class="panel-title">⚙ CONFIGURATION</span>
-    <button class="close-btn" onclick="closeAllPanels()">✕</button>
+<!-- OVERLAY -->
+<div class="overlay" id="main-overlay" onclick="closeAllModals()"></div>
+
+<!-- ITEM SETTINGS MODAL (Appears when tapping a joystick in edit mode) -->
+<div class="modal" id="item-modal">
+  <div class="modal-header">
+    <span class="modal-title" id="item-modal-title">Joystick Settings</span>
+    <button class="close-btn" onclick="closeAllModals()">✕</button>
   </div>
   
-  <div style="font-size: 11px; color: var(--orange); margin-bottom: 15px; text-align:center; font-weight:700; letter-spacing:1px;">DRAG JOYSTICKS TO MOVE THEM</div>
-  
-  <div class="panel-row">
-    <span class="panel-label">SELECTED SIZE</span>
+  <div class="menu-row">
+    <span class="menu-label">Size Scale</span>
+    <span id="scale-val" style="font-size:12px; color:var(--text-main);">1.0x</span>
   </div>
-  <input type="range" id="scale-slider" min="0.6" max="1.8" step="0.05" value="1" oninput="updateScale(this.value)">
+  <input type="range" id="item-scale" min="0.6" max="1.8" step="0.05" value="1" oninput="updateItemScale(this.value)">
   
-  <hr style="border:none; border-top:1px solid rgba(255,255,255,0.05); margin: 20px 0;">
+  <div style="height: 16px;"></div>
   
-  <div class="panel-row">
-    <span class="panel-label">INVERT STEERING</span>
-    <div class="toggle-switch" id="sw-inv-s" onclick="toggleInvert('steer')"><div class="toggle-track"></div><div class="toggle-knob"></div></div>
-  </div>
-  <div class="panel-row">
-    <span class="panel-label">INVERT THROTTLE</span>
-    <div class="toggle-switch" id="sw-inv-t" onclick="toggleInvert('throttle')"><div class="toggle-track"></div><div class="toggle-knob"></div></div>
+  <div class="menu-row">
+    <span class="menu-label">Invert Axis</span>
+    <div class="switch" id="item-invert" onclick="toggleItemInvert()"><div class="switch-knob"></div></div>
   </div>
   
-  <button class="btn-primary btn-danger" onclick="resetToDefault()">RESET TO DEFAULT</button>
-  <button class="btn-primary" onclick="closeAllPanels()" style="background: var(--cyan); color:#000;">DONE</button>
+  <button class="btn-primary" onclick="closeAllModals()">Done</button>
 </div>
 
 <!-- GYROSCOPE MODAL -->
-<div class="glass-panel" id="gyro-modal">
-  <div class="panel-header">
-    <span class="panel-title">⟳ GYROSCOPE</span>
-    <button class="close-btn" onclick="closeAllPanels()">✕</button>
+<div class="modal" id="gyro-modal">
+  <div class="modal-header">
+    <span class="modal-title">Gyroscope Sensor</span>
+    <button class="close-btn" onclick="closeAllModals()">✕</button>
   </div>
-  <div class="panel-row" style="justify-content: center; flex-direction: column; gap:10px;">
-    <div style="font-size: 32px; font-family: 'Orbitron'; font-weight:700; color:var(--cyan);" id="gyro-angle">0°</div>
-    <span style="font-size: 11px; color:var(--text-muted); font-weight:700; letter-spacing:2px;">CURRENT TILT</span>
+  
+  <div style="text-align: center; margin-bottom: 24px;">
+    <div id="gyro-angle" style="font-size: 36px; font-weight: 700; color: var(--text-main);">0°</div>
+    <div style="font-size: 11px; color: var(--text-muted); font-weight: 500; letter-spacing: 1px;">CURRENT TILT</div>
   </div>
-  <button class="btn-primary" id="btn-gyro-toggle" onclick="toggleGyro()">ACTIVATE SENSOR</button>
-  <button class="btn-primary" onclick="calibrateGyro()" style="background:transparent; border-color:var(--text-muted); color:var(--text-main);">SET CENTER (0°)</button>
+
+  <div class="menu-row" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+    <span class="menu-label">Control Target</span>
+    <div class="segmented-control" style="width: 100%;">
+      <button class="segment-btn active" id="seg-steer" onclick="setGyroAxis('steer')">Steering</button>
+      <button class="segment-btn" id="seg-throttle" onclick="setGyroAxis('throttle')">Throttle</button>
+    </div>
+  </div>
+
+  <div class="menu-row" style="margin-top: 16px;">
+    <span class="menu-label">Invert Sensor</span>
+    <div class="switch" id="gyro-invert-sw" onclick="toggleGyroInvert()"><div class="switch-knob"></div></div>
+  </div>
+
+  <div style="display: flex; gap: 10px; margin-top: 16px;">
+    <button class="btn-primary btn-outline" style="flex:1;" onclick="calibrateGyro()">Set Center</button>
+    <button class="btn-primary" style="flex:1;" id="btn-gyro-toggle" onclick="toggleGyro()">Activate</button>
+  </div>
 </div>
 
-<!-- CAMERA MEDIAPIPE -->
+<!-- CAMERA -->
 <div id="cam-panel">
   <video id="cam-video" autoplay playsinline muted></video>
   <canvas id="cam-canvas"></canvas>
   <div id="cam-ui">
     <div id="finger-count">-</div>
-    <div id="gesture-txt">WAITING FOR CAMERA...</div>
+    <div id="gesture-txt">Starting Camera...</div>
   </div>
-  <button id="cam-close" onclick="closeCamera()">✕</button>
+  <button class="tool-btn" style="position: absolute; top: max(20px, env(safe-area-inset-top)); right: 20px; background: rgba(0,0,0,0.5);" onclick="closeCamera()">
+    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+  </button>
 </div>
 
 <!-- JOYSTICKS -->
-<div class="draggable" id="joy-steer-wrap" data-scale="1" style="bottom: 40px; left: 40px;">
+<div class="draggable" id="joy-steer-wrap" data-id="steer" data-scale="1" style="bottom: 40px; left: 40px;">
   <div class="joystick-base" id="joy-steer-base">
     <div class="joystick-knob spring-back" id="joy-steer-knob"></div>
-    <div class="joystick-label">STEERING</div>
+    <div class="joystick-title">STEERING</div>
   </div>
 </div>
 
-<div class="draggable" id="joy-throttle-wrap" data-scale="1" style="bottom: 40px; right: 40px;">
+<div class="draggable" id="joy-throttle-wrap" data-id="throttle" data-scale="1" style="bottom: 40px; right: 40px;">
   <div class="joystick-base" id="joy-throttle-base">
     <div class="joystick-knob spring-back" id="joy-throttle-knob"></div>
-    <div class="joystick-label">THROTTLE</div>
+    <div class="joystick-title">THROTTLE</div>
   </div>
 </div>
 
@@ -282,25 +291,39 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px;
 let ws = null, connected = false, sendInterval = null;
 const ESP_IP = '192.168.4.1';
 
-let rawThrottle = 0, rawSteer = 0; // Values from 0 to 100
-let invertSteer = false, invertThrottle = false;
-let editMode = false, selectedJoy = null;
+let rawThrottle = 0, rawSteer = 0; 
+let invertConfig = { steer: false, throttle: false };
 
-// Gyro & Hand
-let gyroOn = false, centerTilt = 0;
+// Edit Mode
+let editMode = false, activeItem = null;
+let isDragging = false, dragStartX = 0, dragStartY = 0;
+
+// Gyro
+let gyroOn = false, gyroInvert = false, gyroAxis = 'steer';
+let currentRawBeta = 0, currentRawGamma = 0, centerTilt = 0;
+
+// Camera
 let gestureMode = false, cameraStream = null, handsModel = null, lastFingers = -1;
 
-// Load Config
+// ==================== CONFIG STORAGE ====================
+function saveConfig() {
+  const d = { invert: invertConfig, gyroInvert: gyroInvert, gyroAxis: gyroAxis };
+  ['joy-steer-wrap', 'joy-throttle-wrap'].forEach(id => {
+    const el = document.getElementById(id);
+    d[id] = { l: el.style.left, t: el.style.top, s: el.getAttribute('data-scale')||1 };
+  });
+  localStorage.setItem('rc_v7_clean', JSON.stringify(d));
+}
+
 function loadConfig() {
   try {
-    const d = JSON.parse(localStorage.getItem('rc_v6_config'));
+    const d = JSON.parse(localStorage.getItem('rc_v7_clean'));
     if(d) {
-      invertSteer = !!d.invS; invertThrottle = !!d.invT;
-      if(invertSteer) document.getElementById('sw-inv-s').classList.add('on');
-      if(invertThrottle) document.getElementById('sw-inv-t').classList.add('on');
-      document.getElementById('bdg-inv-s').style.display = invertSteer ? 'block' : 'none';
-      document.getElementById('bdg-inv-t').style.display = invertThrottle ? 'block' : 'none';
-      
+      invertConfig = d.invert || { steer: false, throttle: false };
+      gyroInvert = !!d.gyroInvert; gyroAxis = d.gyroAxis || 'steer';
+      if(gyroInvert) document.getElementById('gyro-invert-sw').classList.add('on');
+      setGyroAxis(gyroAxis);
+
       ['joy-steer-wrap', 'joy-throttle-wrap'].forEach(id => {
         if(d[id]) {
           const el = document.getElementById(id);
@@ -311,16 +334,9 @@ function loadConfig() {
     }
   }catch(e){}
 }
-function saveConfig() {
-  const d = { invS: invertSteer, invT: invertThrottle };
-  ['joy-steer-wrap', 'joy-throttle-wrap'].forEach(id => {
-    const el = document.getElementById(id);
-    d[id] = { l: el.style.left, t: el.style.top, s: el.getAttribute('data-scale')||1 };
-  });
-  localStorage.setItem('rc_v6_config', JSON.stringify(d));
-}
-function resetToDefault() {
-  localStorage.removeItem('rc_v6_config');
+
+function resetLayout() {
+  localStorage.removeItem('rc_v7_clean');
   window.location.reload();
 }
 
@@ -332,7 +348,7 @@ function toggleConnect() {
     ws.onopen = () => {
       connected = true;
       document.getElementById('connect-btn').classList.add('connected');
-      document.getElementById('conn-text').textContent = 'CONNECTED';
+      document.getElementById('conn-text').textContent = 'Connected';
       clearInterval(sendInterval);
       sendInterval = setInterval(sendData, 50);
     };
@@ -340,31 +356,29 @@ function toggleConnect() {
       connected = false; ws = null; clearInterval(sendInterval);
       rawThrottle = rawSteer = 0; updateUI();
       document.getElementById('connect-btn').classList.remove('connected');
-      document.getElementById('conn-text').textContent = 'OFFLINE';
+      document.getElementById('conn-text').textContent = 'Connect';
     };
   } catch(e) {}
 }
 
 function sendData() {
-  // Apply inversion purely mathematically before sending
-  let t = invertThrottle ? -rawThrottle : rawThrottle;
-  let s = invertSteer ? -rawSteer : rawSteer;
+  let t = invertConfig.throttle ? -rawThrottle : rawThrottle;
+  let s = invertConfig.steer ? -rawSteer : rawSteer;
   
-  // Mix for L298N (Differential Drive)
   let L = Math.max(-100, Math.min(100, t + s));
   let R = Math.max(-100, Math.min(100, t - s));
   
   if (ws && ws.readyState === WebSocket.OPEN) ws.send(`${L},${R}`);
-  updateUI(rawThrottle); // UI shows raw thrust intent
+  updateUI(rawThrottle);
 }
 
 function updateUI(t=0) {
   const hud = document.getElementById('hud-speed');
   hud.textContent = Math.abs(t);
-  hud.className = 'speed-value ' + (t > 5 ? 'fwd' : (t < -5 ? 'rev' : ''));
+  hud.className = 'speed-number ' + (t > 5 ? 'active' : (t < -5 ? 'reverse' : ''));
 }
 
-// ==================== JOYSTICK LOGIC (Analog No Limits) ====================
+// ==================== JOYSTICK LOGIC ====================
 function setupJoystick(wrapper, base, knob, axis) {
   let active = false, touchId = null, cx = 0, cy = 0;
   const RADIUS = () => (base.offsetWidth / 2) - (knob.offsetWidth / 2);
@@ -374,7 +388,7 @@ function setupJoystick(wrapper, base, knob, axis) {
     active = true; touchId = id;
     const rect = base.getBoundingClientRect();
     cx = rect.left + rect.width / 2; cy = rect.top + rect.height / 2;
-    knob.classList.remove('spring-back'); // Remove transition for smooth drag
+    knob.classList.remove('spring-back');
     base.classList.add('active');
     move(px, py);
   }
@@ -391,12 +405,11 @@ function setupJoystick(wrapper, base, knob, axis) {
     const kx = Math.cos(angle) * clamped; const ky = Math.sin(angle) * clamped;
     knob.style.transform = `translate(${kx}px, ${ky}px)`;
     
-    let nx = kx / R; // -1 to 1
-    let ny = -ky / R; // -1 to 1 (Up is pos)
+    let nx = kx / R; let ny = -ky / R;
 
-    if (axis === 'steer' && !gyroOn) {
+    if (axis === 'steer' && !(gyroOn && gyroAxis === 'steer')) {
       rawSteer = Math.round(nx * 100);
-    } else if (axis === 'throttle') {
+    } else if (axis === 'throttle' && !(gyroOn && gyroAxis === 'throttle')) {
       rawThrottle = Math.round(ny * 100);
       base.classList.toggle('active-rev', rawThrottle < -5);
     }
@@ -404,14 +417,15 @@ function setupJoystick(wrapper, base, knob, axis) {
 
   function end() {
     active = false; touchId = null;
-    knob.classList.add('spring-back'); // Add transition back
+    knob.classList.add('spring-back');
     knob.style.transform = `translate(0px, 0px)`;
     base.classList.remove('active', 'active-rev');
-    if (axis === 'steer' && !gyroOn) rawSteer = 0;
-    if (axis === 'throttle') rawThrottle = 0;
+    if (axis === 'steer' && !(gyroOn && gyroAxis === 'steer')) rawSteer = 0;
+    if (axis === 'throttle' && !(gyroOn && gyroAxis === 'throttle')) rawThrottle = 0;
   }
 
-  base.addEventListener('touchstart', e => { e.preventDefault(); start(e.changedTouches[0].clientX, e.changedTouches[0].clientY, e.changedTouches[0].identifier); }, {passive:false});
+  // Operation events
+  base.addEventListener('touchstart', e => { if(!editMode) { e.preventDefault(); start(e.changedTouches[0].clientX, e.changedTouches[0].clientY, e.changedTouches[0].identifier); } }, {passive:false});
   document.addEventListener('touchmove', e => { if(!active)return; for(let t of e.changedTouches){ if(t.identifier===touchId){ e.preventDefault(); move(t.clientX, t.clientY); }}}, {passive:false});
   document.addEventListener('touchend', e => { if(!active)return; for(let t of e.changedTouches){ if(t.identifier===touchId) end(); }});
   document.addEventListener('touchcancel', () => { if(active) end(); });
@@ -420,95 +434,170 @@ function setupJoystick(wrapper, base, knob, axis) {
 setupJoystick(document.getElementById('joy-steer-wrap'), document.getElementById('joy-steer-base'), document.getElementById('joy-steer-knob'), 'steer');
 setupJoystick(document.getElementById('joy-throttle-wrap'), document.getElementById('joy-throttle-base'), document.getElementById('joy-throttle-knob'), 'throttle');
 
-// ==================== PANELS & EDIT MODE ====================
-function openPanel(id) {
-  if (id === 'edit-modal') {
-    editMode = true; document.getElementById('btn-edit').classList.add('edit-active');
-    document.querySelectorAll('.draggable').forEach(e => e.classList.add('editing'));
-  }
-  document.getElementById('main-overlay').classList.add('show');
-  document.getElementById(id).classList.add('show');
+// ==================== EDIT MODE LOGIC ====================
+function toggleEditMode() {
+  editMode = !editMode;
+  document.getElementById('btn-edit').classList.toggle('active-edit', editMode);
+  document.getElementById('edit-banner').style.display = editMode ? 'flex' : 'none';
+  
+  document.querySelectorAll('.draggable').forEach(el => {
+    el.classList.toggle('editing', editMode);
+  });
+  if (!editMode) saveConfig();
 }
 
-function closeAllPanels() {
-  document.getElementById('main-overlay').classList.remove('show');
-  document.querySelectorAll('.glass-panel').forEach(p => p.classList.remove('show'));
-  if (editMode) {
-    editMode = false; document.getElementById('btn-edit').classList.remove('edit-active');
-    document.querySelectorAll('.draggable').forEach(e => { e.classList.remove('editing', 'selected'); });
-    selectedJoy = null; saveConfig();
-  }
-}
-
-// Drag logic for Edit Mode
-let dragOffX=0, dragOffY=0;
-document.addEventListener('touchstart', e => {
-  if(!editMode) return;
-  const t = e.target.closest('.draggable');
-  if(t) {
+// Dragging and Tapping in Edit Mode
+document.querySelectorAll('.draggable').forEach(wrapper => {
+  wrapper.addEventListener('touchstart', e => {
+    if(!editMode) return;
     e.preventDefault();
-    document.querySelectorAll('.draggable').forEach(el=>el.classList.remove('selected'));
-    t.classList.add('selected'); selectedJoy = t;
-    document.getElementById('scale-slider').value = t.getAttribute('data-scale')||1;
-    const r = t.getBoundingClientRect();
-    dragOffX = e.touches[0].clientX - r.left; dragOffY = e.touches[0].clientY - r.top;
-  }
-}, {passive:false});
-document.addEventListener('touchmove', e => {
-  if(!editMode || !selectedJoy) return; e.preventDefault();
-  selectedJoy.style.left = (e.touches[0].clientX - dragOffX) + 'px';
-  selectedJoy.style.top = (e.touches[0].clientY - dragOffY) + 'px';
-  selectedJoy.style.right = 'auto'; selectedJoy.style.bottom = 'auto';
-}, {passive:false});
+    isDragging = false; activeItem = wrapper;
+    const r = wrapper.getBoundingClientRect();
+    dragStartX = e.touches[0].clientX - r.left;
+    dragStartY = e.touches[0].clientY - r.top;
+  }, {passive:false});
 
-function updateScale(v) {
-  if(selectedJoy) { selectedJoy.setAttribute('data-scale', v); selectedJoy.style.transform = `scale(${v})`; }
+  wrapper.addEventListener('touchmove', e => {
+    if(!editMode || activeItem !== wrapper) return;
+    e.preventDefault(); isDragging = true;
+    wrapper.style.left = (e.touches[0].clientX - dragStartX) + 'px';
+    wrapper.style.top = (e.touches[0].clientY - dragStartY) + 'px';
+    wrapper.style.right = 'auto'; wrapper.style.bottom = 'auto';
+  }, {passive:false});
+
+  wrapper.addEventListener('touchend', e => {
+    if(!editMode || activeItem !== wrapper) return;
+    if(!isDragging) openItemModal(wrapper); // It was a tap
+  });
+});
+
+// Item Modal
+function openItemModal(wrapper) {
+  const id = wrapper.getAttribute('data-id'); // 'steer' or 'throttle'
+  document.getElementById('item-modal-title').textContent = (id === 'steer' ? 'Steering' : 'Throttle') + ' Config';
+  
+  const scale = parseFloat(wrapper.getAttribute('data-scale')) || 1;
+  document.getElementById('item-scale').value = scale;
+  document.getElementById('scale-val').textContent = scale.toFixed(1) + 'x';
+  
+  const isInv = invertConfig[id];
+  const sw = document.getElementById('item-invert');
+  isInv ? sw.classList.add('on') : sw.classList.remove('on');
+  
+  document.getElementById('main-overlay').classList.add('show');
+  document.getElementById('item-modal').classList.add('show');
 }
-function toggleInvert(axis) {
-  if(axis === 'steer') { invertSteer = !invertSteer; document.getElementById('sw-inv-s').classList.toggle('on'); document.getElementById('bdg-inv-s').style.display=invertSteer?'block':'none'; }
-  if(axis === 'throttle') { invertThrottle = !invertThrottle; document.getElementById('sw-inv-t').classList.toggle('on'); document.getElementById('bdg-inv-t').style.display=invertThrottle?'block':'none'; }
+
+function updateItemScale(val) {
+  if(!activeItem) return;
+  activeItem.setAttribute('data-scale', val);
+  activeItem.style.transform = `scale(${val})`;
+  document.getElementById('scale-val').textContent = parseFloat(val).toFixed(1) + 'x';
+}
+
+function toggleItemInvert() {
+  if(!activeItem) return;
+  const id = activeItem.getAttribute('data-id');
+  invertConfig[id] = !invertConfig[id];
+  document.getElementById('item-invert').classList.toggle('on', invertConfig[id]);
+}
+
+// ==================== MODALS GENERAL ====================
+function closeAllModals() {
+  document.getElementById('main-overlay').classList.remove('show');
+  document.querySelectorAll('.modal').forEach(m => m.classList.remove('show'));
+  saveConfig();
 }
 
 // ==================== GYROSCOPE ====================
+function openGyroPanel() {
+  if (editMode) toggleEditMode();
+  document.getElementById('main-overlay').classList.add('show');
+  document.getElementById('gyro-modal').classList.add('show');
+}
+
+function setGyroAxis(axis) {
+  gyroAxis = axis;
+  document.getElementById('seg-steer').classList.toggle('active', axis === 'steer');
+  document.getElementById('seg-throttle').classList.toggle('active', axis === 'throttle');
+}
+
+function toggleGyroInvert() {
+  gyroInvert = !gyroInvert;
+  document.getElementById('gyro-invert-sw').classList.toggle('on', gyroInvert);
+}
+
 function toggleGyro() {
   const btn = document.getElementById('btn-gyro-toggle');
   if(gyroOn) {
-    window.removeEventListener('deviceorientation', handleGyro); gyroOn = false; rawSteer = 0;
-    btn.textContent = 'ACTIVATE SENSOR'; btn.style.background = ''; btn.style.color = '';
-    document.getElementById('btn-gyro').classList.remove('gyro-active');
+    window.removeEventListener('deviceorientation', handleGyro); gyroOn = false; 
+    rawSteer = 0; rawThrottle = 0;
+    btn.textContent = 'Activate'; btn.style.background = '';
+    document.getElementById('btn-gyro').classList.remove('active');
   } else {
     if(typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
       DeviceOrientationEvent.requestPermission().then(r => { if(r==='granted') startGyro(); });
     } else startGyro();
   }
 }
+
 function startGyro() {
   window.addEventListener('deviceorientation', handleGyro); gyroOn = true;
   const btn = document.getElementById('btn-gyro-toggle');
-  btn.textContent = 'DEACTIVATE'; btn.style.background = 'rgba(239,68,68,0.2)'; btn.style.color = 'var(--red)'; btn.style.borderColor='var(--red)';
-  document.getElementById('btn-gyro').classList.add('gyro-active');
+  btn.textContent = 'Deactivate'; btn.style.background = 'var(--danger)';
+  document.getElementById('btn-gyro').classList.add('active');
 }
-function calibrateGyro() {
-  window.addEventListener('deviceorientation', e => { centerTilt = e.gamma || 0; }, {once:true});
-}
+
 function handleGyro(e) {
+  currentRawBeta = e.beta || 0; currentRawGamma = e.gamma || 0;
   if(!gyroOn) return;
-  const isLand = window.innerWidth > window.innerHeight;
-  let tilt = isLand ? (e.beta||0) : (e.gamma||0) - centerTilt; // simplified
+
+  let isLand = window.innerWidth > window.innerHeight;
+  let rawTilt = isLand ? currentRawBeta : currentRawGamma;
+  if(screen.orientation?.angle === -90 || window.orientation === -90) rawTilt = -rawTilt;
+  
+  let tilt = rawTilt - centerTilt;
+  if(gyroInvert) tilt = -tilt;
+  
   document.getElementById('gyro-angle').textContent = Math.round(tilt) + '°';
-  const dead = 5; let g = Math.abs(tilt) < dead ? 0 : tilt - Math.sign(tilt)*dead;
-  rawSteer = Math.max(-100, Math.min(100, Math.round(g * 2.5)));
+  
+  const dead = 5; 
+  let g = Math.abs(tilt) < dead ? 0 : tilt - Math.sign(tilt)*dead;
+  let val = Math.max(-100, Math.min(100, Math.round(g * 2.5)));
+  
+  if (gyroAxis === 'steer') rawSteer = val;
+  else rawThrottle = val;
 }
+
+function calibrateGyro() {
+  // Capture current angle and set as center offset
+  let isLand = window.innerWidth > window.innerHeight;
+  let rawTilt = isLand ? currentRawBeta : currentRawGamma;
+  if(screen.orientation?.angle === -90 || window.orientation === -90) rawTilt = -rawTilt;
+  
+  centerTilt = rawTilt;
+  const t = document.getElementById('gyro-angle');
+  const old = t.textContent;
+  t.textContent = 'SET ✓'; t.style.color = 'var(--success)';
+  setTimeout(() => { t.style.color = ''; }, 1000);
+}
+
+// Ensure orientation updates stream
+window.addEventListener('deviceorientation', e => {
+    currentRawBeta = e.beta || 0; currentRawGamma = e.gamma || 0;
+});
 
 // ==================== CAMERA / MEDIAPIPE ====================
 async function openCamera() {
+  if (editMode) toggleEditMode();
   document.getElementById('cam-panel').classList.add('show'); gestureMode = true;
   try {
     cameraStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user', width:640, height:480}});
     const video = document.getElementById('cam-video'); video.srcObject = cameraStream; await video.play();
     loadHandModel(video);
-  } catch(e) { document.getElementById('gesture-txt').textContent = "CAMERA DENIED/ERROR"; }
+  } catch(e) { document.getElementById('gesture-txt').textContent = "Camera Denied"; }
 }
+
 function closeCamera() {
   gestureMode = false; document.getElementById('cam-panel').classList.remove('show');
   if(cameraStream) { cameraStream.getTracks().forEach(t=>t.stop()); cameraStream=null; }
@@ -517,14 +606,14 @@ function closeCamera() {
 
 async function loadHandModel(video) {
   if (!window.Hands) {
-    document.getElementById('gesture-txt').textContent = "LOADING AI...";
+    document.getElementById('gesture-txt').textContent = "Loading AI Module...";
     await new Promise(r => { const s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/hands.js'; s.onload=r; document.head.appendChild(s);});
     await new Promise(r => { const s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.js'; s.onload=r; document.head.appendChild(s);});
   }
   const canvas = document.getElementById('cam-canvas'), ctx = canvas.getContext('2d');
   handsModel = new Hands({locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/${f}`});
   handsModel.setOptions({maxNumHands:1, modelComplexity:0, minDetectionConfidence:0.7, minTrackingConfidence:0.5});
-  document.getElementById('gesture-txt').textContent = "SHOW FINGERS";
+  document.getElementById('gesture-txt').textContent = "Show Fingers";
 
   handsModel.onResults(res => {
     canvas.width = video.videoWidth; canvas.height = video.videoHeight;
@@ -533,50 +622,49 @@ async function loadHandModel(video) {
       const lm = res.multiHandLandmarks[0];
       drawHand(ctx, lm, canvas.width, canvas.height);
       
-      // Robust Finger Count
       let count = 0;
       const dist = (a, b) => Math.hypot(lm[a].x - lm[b].x, lm[a].y - lm[b].y);
-      if (dist(4, 17) > dist(3, 17)) count++; // Thumb
+      if (dist(4, 17) > dist(3, 17)) count++;
       [8, 12, 16, 20].forEach((tip, i) => { if (lm[tip].y < lm[[6, 10, 14, 18][i]].y - 0.02) count++; });
       
       if(count !== lastFingers) {
         lastFingers = count; rawThrottle = rawSteer = 0;
         document.getElementById('finger-count').textContent = count;
-        if (count===1) { rawThrottle = 100; document.getElementById('gesture-txt').textContent = "FORWARD"; }
-        else if(count===2) { rawThrottle = -100; document.getElementById('gesture-txt').textContent = "REVERSE"; }
-        else if(count===3) { rawSteer = -100; document.getElementById('gesture-txt').textContent = "LEFT"; }
-        else if(count===4) { rawSteer = 100; document.getElementById('gesture-txt').textContent = "RIGHT"; }
-        else { document.getElementById('gesture-txt').textContent = "STOP"; }
+        if (count===1) { rawThrottle = 100; document.getElementById('gesture-txt').textContent = "Forward"; }
+        else if(count===2) { rawThrottle = -100; document.getElementById('gesture-txt').textContent = "Reverse"; }
+        else if(count===3) { rawSteer = -100; document.getElementById('gesture-txt').textContent = "Left"; }
+        else if(count===4) { rawSteer = 100; document.getElementById('gesture-txt').textContent = "Right"; }
+        else { document.getElementById('gesture-txt').textContent = "Stop"; }
       }
-    } else { lastFingers = -1; rawThrottle = rawSteer = 0; document.getElementById('finger-count').textContent = "-"; document.getElementById('gesture-txt').textContent = "HAND LOST"; }
+    } else { lastFingers = -1; rawThrottle = rawSteer = 0; document.getElementById('finger-count').textContent = "-"; document.getElementById('gesture-txt').textContent = "Hand Lost"; }
     ctx.restore();
   });
   new Camera(video, {onFrame: async ()=>{ await handsModel.send({image:video});}, width:640, height:480}).start();
 }
 
 function drawHand(ctx, lm, w, h) {
-  ctx.strokeStyle = '#00e5ff'; ctx.lineWidth = 4;
+  ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 4;
   [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[0,9],[9,10],[10,11],[11,12],[0,13],[13,14],[14,15],[15,16],[0,17],[17,18],[18,19],[19,20],[5,9],[9,13],[13,17]].forEach(([a,b]) => {
     ctx.beginPath(); ctx.moveTo(lm[a].x*w,lm[a].y*h); ctx.lineTo(lm[b].x*w,lm[b].y*h); ctx.stroke();
   });
-  lm.forEach(p => { ctx.beginPath(); ctx.arc(p.x*w, p.y*h, 6, 0, Math.PI*2); ctx.fillStyle='#10b981'; ctx.fill(); });
+  lm.forEach(p => { ctx.beginPath(); ctx.arc(p.x*w, p.y*h, 6, 0, Math.PI*2); ctx.fillStyle='#fff'; ctx.fill(); });
 }
 
-// ==================== FULLSCREEN & GAMEPAD ====================
+// ==================== FULLSCREEN & INIT ====================
 async function goFullscreen() {
   if (!document.fullscreenElement) { await document.documentElement.requestFullscreen?.().catch(()=>{}); screen.orientation?.lock('landscape').catch(()=>{}); }
   else document.exitFullscreen?.();
 }
 
+// PS4 Controller logic
 window.addEventListener('gamepadconnected', () => { setInterval(() => {
   const p = navigator.getGamepads()[0]; if(!p) return;
   const L2 = p.buttons[6]?.value||0; const R2 = p.buttons[7]?.value||0;
   rawThrottle = Math.round((R2 - L2) * 100); rawSteer = Math.round(p.axes[0] * 100);
 }, 50);});
 
-// Init
 loadConfig();
-setInterval(() => { if(!connected) updateUI(rawThrottle); }, 100); // Standalone UI update
+setInterval(() => { if(!connected && !editMode) updateUI(rawThrottle); }, 100);
 </script>
 </body>
 </html>
