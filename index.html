@@ -877,16 +877,14 @@ async function sendData() {
   let L = Math.max(-100, Math.min(100, t + s));
   let R = Math.max(-100, Math.min(100, t - s));
   let val = `${L},${R}`;
-
-  // Optimization: Do not spam network if value hasn't changed (except a heartbeat every so often)
-  if (val === lastSentValue && L === 0 && R === 0) return; 
-
+  if (val === lastSentValue && L === 0 && R === 0) return;
   isWriting = true;
   try {
-    await bleCharacteristic.writeValueWithoutResponse(new TextEncoder().encode(val));
-    lastSentValue = val;
+    const buf = new Int8Array([L, R]);
+    await bleCharacteristic.writeValueWithoutResponse(buf.buffer);
+  lastSentValue = val;
   } catch(e) {}
-  isWriting = false; 
+  isWriting = false;
   
   updateUI(swapControls ? s : rawThrottle);
 }
