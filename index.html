@@ -8,81 +8,585 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>RC Premium Controller</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-:root {--bg-color: #0d0f12;--surface: #1a1d24;--surface-glass: rgba(26, 29, 36, 0.75);--border: rgba(255, 255, 255, 0.08);--text-main: #f3f4f6;--text-muted: #9ca3af;--primary: #3b82f6;--success: #10b981;--danger: #ef4444;--warning: #f59e0b;--shadow-sm: 0 4px 12px rgba(0,0,0,0.3);--shadow-lg: 0 16px 40px rgba(0,0,0,0.6);}
-* {margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent;}
-html, body {width: 100vw; height: 100vh; background: var(--bg-color); overflow: hidden; font-family: 'Inter', sans-serif; user-select: none; color: var(--text-main); touch-action: none;}
-body::before {content: ''; position: absolute; inset: 0; background: radial-gradient(circle at top, rgba(59, 130, 246, 0.05) 0%, transparent 70%); pointer-events: none; z-index: 0;}
-#top-nav {position: fixed; top: 0; left: 0; right: 0; height: max(60px, env(safe-area-inset-top)); display: flex; align-items: center; justify-content: space-between; padding: env(safe-area-inset-top) max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-area-inset-left)); background: linear-gradient(180deg, rgba(13,15,18,0.9) 0%, transparent 100%); z-index: 200; pointer-events: none;}
-.nav-group {display: flex; align-items: center; gap: 12px; pointer-events: auto;}
-#connect-btn {display: flex; align-items: center; gap: 10px; background: var(--surface-glass); border: 1px solid var(--border); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 8px 16px; border-radius: 100px; cursor: pointer; transition: 0.2s; box-shadow: var(--shadow-sm);}
-#connect-btn:active {transform: scale(0.96); background: rgba(255,255,255,0.05);}
-.status-dot {width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); transition: 0.3s;}
-.status-text {font-size: 13px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px;}
-#connect-btn.connected {border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.05);}
-#connect-btn.connected .status-dot {background: var(--success); box-shadow: 0 0 10px var(--success);}
-#connect-btn.connected .status-text {color: var(--success);}
-.tool-btn {width: 42px; height: 42px; border-radius: 50%; background: var(--surface-glass); border: 1px solid var(--border); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: var(--text-main); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; box-shadow: var(--shadow-sm);}
-.tool-btn svg {width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none;}
-.tool-btn:active {transform: scale(0.92); background: rgba(255,255,255,0.1);}
-.tool-btn.active {background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);}
-.tool-btn.active-edit {background: var(--surface); border-color: var(--text-main);}
-.hud-display {position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; pointer-events: none; z-index: 10;}
-.speed-number {font-size: 80px; font-weight: 700; color: rgba(255,255,255,0.05); line-height: 1; transition: 0.2s; font-variant-numeric: tabular-nums;}
-.speed-number.active {color: var(--text-main);}
-.speed-number.reverse {color: var(--danger);}
-.speed-label {font-size: 12px; font-weight: 500; letter-spacing: 4px; color: rgba(255,255,255,0.3); margin-top: 8px;}
-.draggable {position: fixed; z-index: 50; display: flex; align-items: center; justify-content: center; transform-origin: center;}
-.draggable.editing {cursor: move; z-index: 200; animation: editPulse 2s infinite;}
-@keyframes editPulse {0% {opacity: 1;} 50% {opacity: 0.7;} 100% {opacity: 1;}}
-.joystick-base {width: 150px; height: 150px; border-radius: 50%; background: var(--surface); border: 1px solid rgba(255,255,255,0.05); box-shadow: inset 0 4px 15px rgba(0,0,0,0.6), 0 4px 10px rgba(0,0,0,0.3); position: relative; display: flex; align-items: center; justify-content: center; pointer-events: auto;}
-.joystick-knob {width: 65px; height: 65px; border-radius: 50%; position: absolute; pointer-events: none; background: linear-gradient(145deg, #2a2d35, #1f2228); box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.05);}
-.joystick-base.active .joystick-knob {background: linear-gradient(145deg, #3b82f6, #2563eb); box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4), inset 0 2px 4px rgba(255,255,255,0.2);}
-.joystick-base.active-rev .joystick-knob {background: linear-gradient(145deg, #ef4444, #dc2626); box-shadow: 0 8px 20px rgba(220, 38, 38, 0.4), inset 0 2px 4px rgba(255,255,255,0.2);}
-.spring-back {transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);}
-.joystick-title {position: absolute; bottom: -35px; font-size: 11px; font-weight: 600; letter-spacing: 2px; color: var(--text-muted); opacity: 0.5;}
-.overlay {position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 290; opacity: 0; pointer-events: none; transition: 0.2s;}
-.overlay.show {opacity: 1; pointer-events: auto;}
-.modal {position: fixed; top: 50%; left: 50%; transform: translate(-50%, -45%) scale(0.95); opacity: 0; pointer-events: none; background: rgba(22, 25, 31, 0.85); border: 1px solid var(--border); border-radius: 24px; padding: 24px; box-shadow: var(--shadow-lg); width: 320px; z-index: 300; transition: 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);}
-.modal.show {transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: auto;}
-.modal-header {display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;}
-.modal-title {font-size: 15px; font-weight: 600; color: var(--text-main); letter-spacing: 1px;}
-.close-btn {background: rgba(255,255,255,0.05); border: none; width: 32px; height: 32px; border-radius: 50%; color: var(--text-muted); font-size: 16px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center;}
-.close-btn:active {background: rgba(255,255,255,0.1); color: #fff;}
-.menu-row {display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;}
-.menu-label {font-size: 13px; font-weight: 500; color: var(--text-muted);}
-.segmented-control {display: flex; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 4px; gap: 4px;}
-.segment-btn {flex: 1; padding: 8px 0; border: none; background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: 0.2s;}
-.segment-btn.active {background: var(--surface-glass); color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.2);}
-.switch {position: relative; width: 44px; height: 24px; border-radius: 12px; background: rgba(255,255,255,0.1); cursor: pointer; transition: 0.3s;}
-.switch.on {background: var(--success);}
-.switch-knob {position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);}
-.switch.on .switch-knob {left: 22px;}
-input[type=range] {-webkit-appearance: none; width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; outline: none; margin: 10px 0;}
-input[type=range]::-webkit-slider-thumb {-webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.3); cursor: pointer;}
-.btn-primary {width: 100%; padding: 14px; background: var(--primary); border: none; color: #fff; font-size: 13px; font-weight: 600; letter-spacing: 1px; border-radius: 12px; cursor: pointer; transition: 0.2s; margin-top: 10px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);}
-.btn-primary:active {transform: scale(0.96);}
-.btn-outline {background: transparent; border: 1px solid var(--border); box-shadow: none; color: var(--text-main);}
-.btn-outline:active {background: rgba(255,255,255,0.05);}
-#edit-banner {position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(13,15,18,0.9); border: 1px solid var(--border); padding: 8px 16px; border-radius: 100px; display: none; align-items: center; gap: 16px; z-index: 250; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);}
-.edit-hint {font-size: 12px; font-weight: 500; color: var(--text-muted);}
-.reset-btn {font-size: 11px; background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 6px 12px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer;}
-#cam-panel {position: fixed; inset: 0; background: #000; z-index: 400; display: none; flex-direction: column; align-items: center; justify-content: center;}
-#cam-panel.show {display: flex;}
-#cam-video, #cam-canvas {position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);}
-#cam-ui {position: absolute; top: 40px; display: flex; flex-direction: column; align-items: center; z-index: 10;}
-#finger-count {font-size: 80px; font-weight: 700; color: #fff; text-shadow: 0 4px 10px rgba(0,0,0,0.5); line-height: 1;}
-#gesture-txt {font-size: 14px; font-weight: 600; letter-spacing: 2px; background: rgba(0,0,0,0.5); padding: 6px 16px; border-radius: 100px; backdrop-filter: blur(5px); margin-top: 10px; border: 1px solid rgba(255,255,255,0.1);}
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg-color: #0d0f12;
+    --surface: #1a1d24;
+    --surface-glass: rgba(26, 29, 36, 0.75);
+    --border: rgba(255, 255, 255, 0.08);
+    --text-main: #f3f4f6;
+    --text-muted: #9ca3af;
+    --primary: #3b82f6;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --shadow-sm: 0 4px 12px rgba(0,0,0,0.3);
+    --shadow-lg: 0 16px 40px rgba(0,0,0,0.6);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body {
+    width: 100vw;
+    height: 100vh;
+    background: var(--bg-color);
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+    user-select: none;
+    color: var(--text-main);
+    touch-action: none;
+  }
+
+  body::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top, rgba(59, 130, 246, 0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #top-nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: max(60px, env(safe-area-inset-top));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: env(safe-area-inset-top) max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-area-inset-left));
+    background: linear-gradient(180deg, rgba(13,15,18,0.9) 0%, transparent 100%);
+    z-index: 200;
+    pointer-events: none;
+  }
+
+  .nav-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    pointer-events: auto;
+  }
+
+  #connect-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface-glass);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 8px 16px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: var(--shadow-sm);
+  }
+
+  #connect-btn:active {
+    transform: scale(0.96);
+    background: rgba(255,255,255,0.05);
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    transition: 0.3s;
+  }
+
+  .status-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  #connect-btn.connected {
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.05);
+  }
+
+  #connect-btn.connected .status-dot {
+    background: var(--success);
+    box-shadow: 0 0 10px var(--success);
+  }
+
+  #connect-btn.connected .status-text {
+    color: var(--success);
+  }
+
+  .tool-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--surface-glass);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .tool-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+  }
+
+  .tool-btn:active {
+    transform: scale(0.92);
+    background: rgba(255,255,255,0.1);
+  }
+
+  .tool-btn.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+  }
+
+  .tool-btn.active-edit {
+    background: var(--surface);
+    border-color: var(--text-main);
+  }
+
+  .hud-display {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .speed-number {
+    font-size: 80px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.05);
+    line-height: 1;
+    transition: 0.2s;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .speed-number.active { color: var(--text-main); }
+  .speed-number.reverse { color: var(--danger); }
+
+  .speed-label {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 4px;
+    color: rgba(255,255,255,0.3);
+    margin-top: 8px;
+  }
+
+  .draggable {
+    position: fixed;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform-origin: center;
+  }
+
+  .draggable.editing {
+    cursor: move;
+    z-index: 200;
+    animation: editPulse 2s infinite;
+  }
+
+  @keyframes editPulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+  }
+
+  .joystick-base {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow: inset 0 4px 15px rgba(0,0,0,0.6), 0 4px 10px rgba(0,0,0,0.3);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+  }
+
+  .joystick-knob {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    position: absolute;
+    pointer-events: none;
+    background: linear-gradient(145deg, #2a2d35, #1f2228);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .joystick-base.active .joystick-knob {
+    background: linear-gradient(145deg, #3b82f6, #2563eb);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4), inset 0 2px 4px rgba(255,255,255,0.2);
+  }
+
+  .joystick-base.active-rev .joystick-knob {
+    background: linear-gradient(145deg, #ef4444, #dc2626);
+    box-shadow: 0 8px 20px rgba(220, 38, 38, 0.4), inset 0 2px 4px rgba(255,255,255,0.2);
+  }
+
+  .spring-back {
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .joystick-title {
+    position: absolute;
+    bottom: -35px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    opacity: 0.5;
+  }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 290;
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.2s;
+  }
+
+  .overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -45%) scale(0.95);
+    opacity: 0;
+    pointer-events: none;
+    background: rgba(22, 25, 31, 0.85);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: var(--shadow-lg);
+    width: 320px;
+    z-index: 300;
+    transition: 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  }
+
+  .modal.show {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .modal-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-main);
+    letter-spacing: 1px;
+  }
+
+  .close-btn {
+    background: rgba(255,255,255,0.05);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: var(--text-muted);
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .close-btn:active {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+  }
+
+  .menu-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+
+  .menu-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  .segmented-control {
+    display: flex;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    padding: 4px;
+    gap: 4px;
+  }
+
+  .segment-btn {
+    flex: 1;
+    padding: 8px 0;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .segment-btn.active {
+    background: var(--surface-glass);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  .switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.1);
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .switch.on { background: var(--success); }
+
+  .switch-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .switch.on .switch-knob { left: 22px; }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    outline: none;
+    margin: 10px 0;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    cursor: pointer;
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: var(--primary);
+    border: none;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+    margin-top: 10px;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+
+  .btn-primary:active { transform: scale(0.96); }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    box-shadow: none;
+    color: var(--text-main);
+  }
+
+  .btn-outline:active { background: rgba(255,255,255,0.05); }
+
+  #edit-banner {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(13,15,18,0.9);
+    border: 1px solid var(--border);
+    padding: 8px 16px;
+    border-radius: 100px;
+    display: none;
+    align-items: center;
+    gap: 16px;
+    z-index: 250;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .edit-hint {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  .reset-btn {
+    font-size: 11px;
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .swap-btn {
+    font-size: 11px;
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--primary);
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  #cam-panel {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 400;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #cam-panel.show { display: flex; }
+
+  #cam-video, #cam-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+  }
+
+  #cam-ui {
+    position: absolute;
+    top: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 10;
+  }
+
+  #finger-count {
+    font-size: 80px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    line-height: 1;
+  }
+
+  #gesture-txt {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    background: rgba(0,0,0,0.5);
+    padding: 6px 16px;
+    border-radius: 100px;
+    backdrop-filter: blur(5px);
+    margin-top: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--surface);
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 100px;
+    z-index: 1000;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    transition: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    pointer-events: none;
+    border: 1px solid var(--border);
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 </style>
 </head>
 <body>
+
 <div id="top-nav">
   <div class="nav-group">
     <div id="connect-btn" onclick="toggleConnect()">
       <div class="status-dot"></div>
-      <span class="status-text" id="conn-text">Connect BLE</span>
+      <span class="status-text" id="conn-text">Connect</span>
     </div>
   </div>
+
   <div class="nav-group">
     <button class="tool-btn" id="btn-gyro" onclick="openGyroPanel()">
       <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -98,42 +602,56 @@ input[type=range]::-webkit-slider-thumb {-webkit-appearance: none; width: 22px; 
     </button>
   </div>
 </div>
+
 <div id="edit-banner">
   <span class="edit-hint">Tap a joystick to customize</span>
+  <button class="swap-btn" onclick="toggleSwap()">Swap: <span id="swap-state">OFF</span></button>
   <button class="reset-btn" onclick="resetLayout()">Reset Layout</button>
-  <button class="tool-btn active-edit" style="width: 32px; height: 32px;" onclick="toggleEditMode()"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></button>
+  <button class="tool-btn active-edit" style="width: 32px; height: 32px;" onclick="toggleEditMode()">
+    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+  </button>
 </div>
+
 <div class="hud-display">
   <div class="speed-number" id="hud-speed">0</div>
   <div class="speed-label">THROTTLE</div>
 </div>
+
 <div class="overlay" id="main-overlay" onclick="closeAllModals()"></div>
+
 <div class="modal" id="item-modal">
   <div class="modal-header">
     <span class="modal-title" id="item-modal-title">Joystick Settings</span>
     <button class="close-btn" onclick="closeAllModals()">✕</button>
   </div>
+
   <div class="menu-row">
     <span class="menu-label">Size Scale</span>
     <span id="scale-val" style="font-size:12px; color:var(--text-main);">1.0x</span>
   </div>
   <input type="range" id="item-scale" min="0.6" max="1.8" step="0.05" value="1" oninput="updateItemScale(this.value)">
+
   <div style="height: 16px;"></div>
+
   <div class="menu-row">
     <span class="menu-label">Invert Axis</span>
     <div class="switch" id="item-invert" onclick="toggleItemInvert()"><div class="switch-knob"></div></div>
   </div>
+
   <button class="btn-primary" onclick="closeAllModals()">Done</button>
 </div>
+
 <div class="modal" id="gyro-modal">
   <div class="modal-header">
     <span class="modal-title">Gyroscope Sensor</span>
     <button class="close-btn" onclick="closeAllModals()">✕</button>
   </div>
+
   <div style="text-align: center; margin-bottom: 24px;">
     <div id="gyro-angle" style="font-size: 36px; font-weight: 700; color: var(--text-main);">0°</div>
     <div style="font-size: 11px; color: var(--text-muted); font-weight: 500; letter-spacing: 1px;">CURRENT TILT</div>
   </div>
+
   <div class="menu-row" style="flex-direction: column; align-items: flex-start; gap: 10px;">
     <span class="menu-label">Control Target</span>
     <div class="segmented-control" style="width: 100%;">
@@ -141,15 +659,18 @@ input[type=range]::-webkit-slider-thumb {-webkit-appearance: none; width: 22px; 
       <button class="segment-btn" id="seg-throttle" onclick="setGyroAxis('throttle')">Throttle</button>
     </div>
   </div>
+
   <div class="menu-row" style="margin-top: 16px;">
     <span class="menu-label">Invert Sensor</span>
     <div class="switch" id="gyro-invert-sw" onclick="toggleGyroInvert()"><div class="switch-knob"></div></div>
   </div>
+
   <div style="display: flex; gap: 10px; margin-top: 16px;">
     <button class="btn-primary btn-outline" style="flex:1;" onclick="calibrateGyro()">Set Center</button>
     <button class="btn-primary" style="flex:1;" id="btn-gyro-toggle" onclick="toggleGyro()">Activate</button>
   </div>
 </div>
+
 <div id="cam-panel">
   <video id="cam-video" autoplay playsinline muted></video>
   <canvas id="cam-canvas"></canvas>
@@ -161,285 +682,581 @@ input[type=range]::-webkit-slider-thumb {-webkit-appearance: none; width: 22px; 
     <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
   </button>
 </div>
+
 <div class="draggable" id="joy-steer-wrap" data-id="steer" data-scale="1" style="bottom: 40px; left: 40px;">
   <div class="joystick-base" id="joy-steer-base">
     <div class="joystick-knob spring-back" id="joy-steer-knob"></div>
     <div class="joystick-title">STEERING</div>
   </div>
 </div>
+
 <div class="draggable" id="joy-throttle-wrap" data-id="throttle" data-scale="1" style="bottom: 40px; right: 40px;">
   <div class="joystick-base" id="joy-throttle-base">
     <div class="joystick-knob spring-back" id="joy-throttle-knob"></div>
     <div class="joystick-title">THROTTLE</div>
   </div>
 </div>
+
 <script>
-let bleDevice=null, bleCharacteristic=null, connected=false, sendInterval=null, isWriting=false;
-let rawThrottle=0, rawSteer=0;
-let invertConfig={steer:false, throttle:false};
-let editMode=false, activeItem=null, isDragging=false, dragStartX=0, dragStartY=0;
-let gyroOn=false, gyroInvert=false, gyroAxis='steer', currentRawBeta=0, currentRawGamma=0, centerTilt=0;
-let gestureMode=false, cameraStream=null, handsModel=null, lastFingers=-1;
-function saveConfig(){
-  const d={invert:invertConfig, gyroInvert:gyroInvert, gyroAxis:gyroAxis};
-  ['joy-steer-wrap','joy-throttle-wrap'].forEach(id=>{
-    const el=document.getElementById(id);
-    d[id]={l:el.style.left, t:el.style.top, s:el.getAttribute('data-scale')||1};
-  });
-  localStorage.setItem('rc_v7_ble', JSON.stringify(d));
+let bleDevice = null;
+let bleCharacteristic = null;
+let connected = false;
+let sendInterval = null;
+let isWriting = false;
+
+let rawThrottle = 0;
+let rawSteer = 0;
+let invertConfig = { steer: false, throttle: false };
+let swapControls = false;
+
+let editMode = false;
+let activeItem = null;
+let isDragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
+
+let gyroOn = false;
+let gyroInvert = false;
+let gyroAxis = 'steer';
+let currentRawBeta = 0;
+let currentRawGamma = 0;
+let centerTilt = 0;
+
+let gestureMode = false;
+let cameraStream = null;
+let handsModel = null;
+let lastFingers = -1;
+
+function showToast(msg, isError = false) {
+  let oldToast = document.getElementById('custom-toast');
+  if(oldToast) oldToast.remove();
+
+  const toast = document.createElement('div');
+  toast.id = 'custom-toast';
+  toast.className = 'toast';
+  if(isError) toast.style.border = '1px solid var(--danger)';
+  toast.textContent = msg;
+
+  document.body.appendChild(toast);
+  
+  setTimeout(() => toast.classList.add('show'), 10);
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
 }
-function loadConfig(){
-  try{
-    const d=JSON.parse(localStorage.getItem('rc_v7_ble'));
-    if(d){
-      invertConfig=d.invert||{steer:false, throttle:false};
-      gyroInvert=!!d.gyroInvert; gyroAxis=d.gyroAxis||'steer';
-      if(gyroInvert)document.getElementById('gyro-invert-sw').classList.add('on');
+
+function saveConfig() {
+  const d = { 
+    invert: invertConfig, 
+    gyroInvert: gyroInvert, 
+    gyroAxis: gyroAxis,
+    swap: swapControls 
+  };
+  
+  ['joy-steer-wrap', 'joy-throttle-wrap'].forEach(id => {
+    const el = document.getElementById(id);
+    d[id] = { 
+      l: el.style.left, 
+      t: el.style.top, 
+      s: el.getAttribute('data-scale') || 1 
+    };
+  });
+  localStorage.setItem('rc_v7_ble_swap', JSON.stringify(d));
+}
+
+function loadConfig() {
+  try {
+    const d = JSON.parse(localStorage.getItem('rc_v7_ble_swap'));
+    if (d) {
+      invertConfig = d.invert || { steer: false, throttle: false };
+      gyroInvert = !!d.gyroInvert; 
+      gyroAxis = d.gyroAxis || 'steer';
+      swapControls = !!d.swap;
+      
+      document.getElementById('swap-state').textContent = swapControls ? 'ON' : 'OFF';
+
+      if(gyroInvert) document.getElementById('gyro-invert-sw').classList.add('on');
       setGyroAxis(gyroAxis);
-      ['joy-steer-wrap','joy-throttle-wrap'].forEach(id=>{
-        if(d[id]){
-          const el=document.getElementById(id);
-          el.style.left=d[id].l; el.style.top=d[id].t; el.style.right='auto'; el.style.bottom='auto';
-          el.setAttribute('data-scale', d[id].s); el.style.transform=`scale(${d[id].s})`;
+
+      ['joy-steer-wrap', 'joy-throttle-wrap'].forEach(id => {
+        if (d[id]) {
+          const el = document.getElementById(id);
+          el.style.left = d[id].l; 
+          el.style.top = d[id].t; 
+          el.style.right = 'auto'; 
+          el.style.bottom = 'auto';
+          el.setAttribute('data-scale', d[id].s); 
+          el.style.transform = `scale(${d[id].s})`;
         }
       });
     }
-  }catch(e){}
+  } catch(e) {}
 }
-function resetLayout(){localStorage.removeItem('rc_v7_ble'); window.location.reload();}
-async function toggleConnect(){
-  const btn=document.getElementById('connect-btn');
-  const txt=document.getElementById('conn-text');
-  if(connected){if(bleDevice&&bleDevice.gatt.connected)bleDevice.gatt.disconnect(); return;}
-  try{
-    txt.textContent='Pairing...';
-    bleDevice=await navigator.bluetooth.requestDevice({
-      filters:[{name:'RC-Car-BLE'}],
-      optionalServices:['19b10000-e8f2-537e-4f6c-d104768a1214']
+
+function resetLayout() {
+  localStorage.removeItem('rc_v7_ble_swap');
+  window.location.reload();
+}
+
+function toggleSwap() {
+  swapControls = !swapControls;
+  document.getElementById('swap-state').textContent = swapControls ? 'ON' : 'OFF';
+  showToast(swapControls ? "Controls Swapped" : "Controls Normal");
+  saveConfig();
+}
+
+async function toggleConnect() {
+  const btn = document.getElementById('connect-btn');
+  const txt = document.getElementById('conn-text');
+
+  if (connected) {
+    if (bleDevice && bleDevice.gatt.connected) {
+      bleDevice.gatt.disconnect();
+    }
+    return;
+  }
+
+  try {
+    txt.textContent = 'Pairing...';
+    
+    // Note: The pairing dialog is automatically generated by the browser for security.
+    bleDevice = await navigator.bluetooth.requestDevice({
+      filters: [{ name: 'RC-Car-BLE' }],
+      optionalServices: ['19b10000-e8f2-537e-4f6c-d104768a1214']
     });
+
     bleDevice.addEventListener('gattserverdisconnected', onDisconnect);
-    const server=await bleDevice.gatt.connect();
-    const service=await server.getPrimaryService('19b10000-e8f2-537e-4f6c-d104768a1214');
-    bleCharacteristic=await service.getCharacteristic('19b10001-e8f2-537e-4f6c-d104768a1214');
-    connected=true; btn.classList.add('connected'); txt.textContent='Connected';
-    clearInterval(sendInterval); sendInterval=setInterval(sendData, 50);
-  }catch(e){txt.textContent='Failed'; setTimeout(()=>txt.textContent='Connect BLE', 2000);}
+    const server = await bleDevice.gatt.connect();
+    const service = await server.getPrimaryService('19b10000-e8f2-537e-4f6c-d104768a1214');
+    bleCharacteristic = await service.getCharacteristic('19b10001-e8f2-537e-4f6c-d104768a1214');
+
+    connected = true; 
+    btn.classList.add('connected'); 
+    txt.textContent = 'Connected';
+    
+    showToast("Successfully Connected!");
+
+    clearInterval(sendInterval); 
+    sendInterval = setInterval(sendData, 50);
+
+  } catch(e) {
+    txt.textContent = 'Failed';
+    showToast("Connection Failed or Canceled.", true);
+    setTimeout(() => txt.textContent = 'Connect', 2000);
+  }
 }
-function onDisconnect(){
-  connected=false; bleCharacteristic=null; rawThrottle=rawSteer=0; updateUI();
+
+function onDisconnect() {
+  connected = false; 
+  bleCharacteristic = null; 
+  rawThrottle = rawSteer = 0; 
+  updateUI();
+  
   document.getElementById('connect-btn').classList.remove('connected');
-  document.getElementById('conn-text').textContent='Connect BLE';
+  document.getElementById('conn-text').textContent = 'Connect';
+  showToast("Device Disconnected", true);
+  
   clearInterval(sendInterval);
 }
-async function sendData(){
-  if(!connected||!bleCharacteristic||isWriting)return;
-  let t=invertConfig.throttle?-rawThrottle:rawThrottle;
-  let s=invertConfig.steer?-rawSteer:rawSteer;
-  let L=Math.max(-100,Math.min(100,t+s));
-  let R=Math.max(-100,Math.min(100,t-s));
-  let val=`${L},${R}`;
-  isWriting=true;
-  try{await bleCharacteristic.writeValueWithoutResponse(new TextEncoder().encode(val));}catch(e){}
-  isWriting=false; updateUI(rawThrottle);
+
+async function sendData() {
+  if (!connected || !bleCharacteristic || isWriting) return;
+
+  let t = invertConfig.throttle ? -rawThrottle : rawThrottle;
+  let s = invertConfig.steer ? -rawSteer : rawSteer;
+
+  // Swap Controls Logic
+  if (swapControls) {
+    let temp = t;
+    t = s;
+    s = temp;
+  }
+
+  let L = Math.max(-100, Math.min(100, t + s));
+  let R = Math.max(-100, Math.min(100, t - s));
+  let val = `${L},${R}`;
+
+  isWriting = true;
+  try {
+    await bleCharacteristic.writeValueWithoutResponse(new TextEncoder().encode(val));
+  } catch(e) {}
+  isWriting = false; 
+  
+  updateUI(swapControls ? s : rawThrottle);
 }
-function updateUI(t=0){
-  const hud=document.getElementById('hud-speed');
-  hud.textContent=Math.abs(t);
-  hud.className='speed-number '+(t>5?'active':(t<-5?'reverse':''));
+
+function updateUI(t = 0) {
+  const hud = document.getElementById('hud-speed');
+  hud.textContent = Math.abs(t);
+  hud.className = 'speed-number ' + (t > 5 ? 'active' : (t < -5 ? 'reverse' : ''));
 }
-function setupJoystick(wrapper,base,knob,axis){
-  let active=false,touchId=null,cx=0,cy=0;
-  const RADIUS=()=>(base.offsetWidth/2)-(knob.offsetWidth/2);
-  function start(px,py,id){
-    if(editMode)return;
-    active=true; touchId=id;
-    const rect=base.getBoundingClientRect();
-    cx=rect.left+rect.width/2; cy=rect.top+rect.height/2;
+
+function setupJoystick(wrapper, base, knob, axis) {
+  let active = false, touchId = null, cx = 0, cy = 0;
+  const RADIUS = () => (base.offsetWidth / 2) - (knob.offsetWidth / 2);
+
+  function start(px, py, id) {
+    if (editMode) return;
+    active = true; 
+    touchId = id;
+    
+    const rect = base.getBoundingClientRect();
+    cx = rect.left + rect.width / 2; 
+    cy = rect.top + rect.height / 2;
+    
     knob.classList.remove('spring-back');
     base.classList.add('active');
-    move(px,py);
+    move(px, py);
   }
-  function move(px,py){
-    if(!active)return;
-    const scale=parseFloat(wrapper.getAttribute('data-scale'))||1;
-    const dx=(px-cx)/scale; const dy=(py-cy)/scale;
-    const dist=Math.sqrt(dx*dx+dy*dy);
-    const R=RADIUS();
-    const clamped=Math.min(dist,R);
-    const angle=Math.atan2(dy,dx);
-    const kx=Math.cos(angle)*clamped; const ky=Math.sin(angle)*clamped;
-    knob.style.transform=`translate(${kx}px, ${ky}px)`;
-    let nx=kx/R; let ny=-ky/R;
-    if(axis==='steer'&&!(gyroOn&&gyroAxis==='steer'))rawSteer=Math.round(nx*100);
-    else if(axis==='throttle'&&!(gyroOn&&gyroAxis==='throttle')){
-      rawThrottle=Math.round(ny*100);
-      base.classList.toggle('active-rev',rawThrottle<-5);
+
+  function move(px, py) {
+    if (!active) return;
+    
+    const scale = parseFloat(wrapper.getAttribute('data-scale')) || 1;
+    const dx = (px - cx) / scale; 
+    const dy = (py - cy) / scale;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    const R = RADIUS();
+    const clamped = Math.min(dist, R);
+    const angle = Math.atan2(dy, dx);
+    
+    const kx = Math.cos(angle) * clamped; 
+    const ky = Math.sin(angle) * clamped;
+    
+    knob.style.transform = `translate(${kx}px, ${ky}px)`;
+    
+    let nx = kx / R; 
+    let ny = -ky / R;
+    
+    if (axis === 'steer' && !(gyroOn && gyroAxis === 'steer')) {
+      rawSteer = Math.round(nx * 100);
+    } else if (axis === 'throttle' && !(gyroOn && gyroAxis === 'throttle')) {
+      rawThrottle = Math.round(ny * 100);
+      base.classList.toggle('active-rev', rawThrottle < -5);
     }
   }
-  function end(){
-    active=false; touchId=null;
+
+  function end() {
+    active = false; 
+    touchId = null;
+    
     knob.classList.add('spring-back');
-    knob.style.transform=`translate(0px, 0px)`;
-    base.classList.remove('active','active-rev');
-    if(axis==='steer'&&!(gyroOn&&gyroAxis==='steer'))rawSteer=0;
-    if(axis==='throttle'&&!(gyroOn&&gyroAxis==='throttle'))rawThrottle=0;
+    knob.style.transform = `translate(0px, 0px)`;
+    base.classList.remove('active', 'active-rev');
+    
+    if (axis === 'steer' && !(gyroOn && gyroAxis === 'steer')) rawSteer = 0;
+    if (axis === 'throttle' && !(gyroOn && gyroAxis === 'throttle')) rawThrottle = 0;
   }
-  base.addEventListener('touchstart',e=>{if(!editMode){e.preventDefault();start(e.changedTouches[0].clientX,e.changedTouches[0].clientY,e.changedTouches[0].identifier);}},{passive:false});
-  document.addEventListener('touchmove',e=>{if(!active)return;for(let t of e.changedTouches){if(t.identifier===touchId){e.preventDefault();move(t.clientX,t.clientY);}}},{passive:false});
-  document.addEventListener('touchend',e=>{if(!active)return;for(let t of e.changedTouches){if(t.identifier===touchId)end();}});
-  document.addEventListener('touchcancel',()=>{if(active)end();});
+
+  base.addEventListener('touchstart', e => { 
+    if(!editMode) { 
+      e.preventDefault(); 
+      start(e.changedTouches[0].clientX, e.changedTouches[0].clientY, e.changedTouches[0].identifier); 
+    } 
+  }, { passive: false });
+  
+  document.addEventListener('touchmove', e => { 
+    if(!active) return; 
+    for(let t of e.changedTouches) { 
+      if(t.identifier === touchId) { 
+        e.preventDefault(); 
+        move(t.clientX, t.clientY); 
+      }
+    }
+  }, { passive: false });
+  
+  document.addEventListener('touchend', e => { 
+    if(!active) return; 
+    for(let t of e.changedTouches) { 
+      if(t.identifier === touchId) end(); 
+    }
+  });
+  
+  document.addEventListener('touchcancel', () => { 
+    if(active) end(); 
+  });
 }
-setupJoystick(document.getElementById('joy-steer-wrap'),document.getElementById('joy-steer-base'),document.getElementById('joy-steer-knob'),'steer');
-setupJoystick(document.getElementById('joy-throttle-wrap'),document.getElementById('joy-throttle-base'),document.getElementById('joy-throttle-knob'),'throttle');
-function toggleEditMode(){
-  editMode=!editMode;
-  document.getElementById('btn-edit').classList.toggle('active-edit',editMode);
-  document.getElementById('edit-banner').style.display=editMode?'flex':'none';
-  document.querySelectorAll('.draggable').forEach(el=>{el.classList.toggle('editing',editMode);});
-  if(!editMode)saveConfig();
+
+setupJoystick(document.getElementById('joy-steer-wrap'), document.getElementById('joy-steer-base'), document.getElementById('joy-steer-knob'), 'steer');
+setupJoystick(document.getElementById('joy-throttle-wrap'), document.getElementById('joy-throttle-base'), document.getElementById('joy-throttle-knob'), 'throttle');
+
+function toggleEditMode() {
+  editMode = !editMode;
+  document.getElementById('btn-edit').classList.toggle('active-edit', editMode);
+  document.getElementById('edit-banner').style.display = editMode ? 'flex' : 'none';
+  
+  document.querySelectorAll('.draggable').forEach(el => {
+    el.classList.toggle('editing', editMode);
+  });
+  
+  if (!editMode) saveConfig();
 }
-document.querySelectorAll('.draggable').forEach(wrapper=>{
-  wrapper.addEventListener('touchstart',e=>{
-    if(!editMode)return; e.preventDefault(); isDragging=false; activeItem=wrapper;
-    const r=wrapper.getBoundingClientRect();
-    dragStartX=e.touches[0].clientX-r.left; dragStartY=e.touches[0].clientY-r.top;
-  },{passive:false});
-  wrapper.addEventListener('touchmove',e=>{
-    if(!editMode||activeItem!==wrapper)return; e.preventDefault(); isDragging=true;
-    wrapper.style.left=(e.touches[0].clientX-dragStartX)+'px';
-    wrapper.style.top=(e.touches[0].clientY-dragStartY)+'px';
-    wrapper.style.right='auto'; wrapper.style.bottom='auto';
-  },{passive:false});
-  wrapper.addEventListener('touchend',e=>{if(!editMode||activeItem!==wrapper)return; if(!isDragging)openItemModal(wrapper);});
+
+document.querySelectorAll('.draggable').forEach(wrapper => {
+  wrapper.addEventListener('touchstart', e => {
+    if(!editMode) return; 
+    e.preventDefault(); 
+    isDragging = false; 
+    activeItem = wrapper;
+    const r = wrapper.getBoundingClientRect();
+    dragStartX = e.touches[0].clientX - r.left; 
+    dragStartY = e.touches[0].clientY - r.top;
+  }, { passive: false });
+
+  wrapper.addEventListener('touchmove', e => {
+    if(!editMode || activeItem !== wrapper) return; 
+    e.preventDefault(); 
+    isDragging = true;
+    wrapper.style.left = (e.touches[0].clientX - dragStartX) + 'px';
+    wrapper.style.top = (e.touches[0].clientY - dragStartY) + 'px';
+    wrapper.style.right = 'auto'; 
+    wrapper.style.bottom = 'auto';
+  }, { passive: false });
+
+  wrapper.addEventListener('touchend', e => {
+    if(!editMode || activeItem !== wrapper) return; 
+    if(!isDragging) openItemModal(wrapper);
+  });
 });
-function openItemModal(wrapper){
-  const id=wrapper.getAttribute('data-id');
-  document.getElementById('item-modal-title').textContent=(id==='steer'?'Steering':'Throttle')+' Config';
-  const scale=parseFloat(wrapper.getAttribute('data-scale'))||1;
-  document.getElementById('item-scale').value=scale;
-  document.getElementById('scale-val').textContent=scale.toFixed(1)+'x';
-  const isInv=invertConfig[id];
-  const sw=document.getElementById('item-invert');
-  isInv?sw.classList.add('on'):sw.classList.remove('on');
+
+function openItemModal(wrapper) {
+  const id = wrapper.getAttribute('data-id');
+  document.getElementById('item-modal-title').textContent = (id === 'steer' ? 'Steering' : 'Throttle') + ' Config';
+  
+  const scale = parseFloat(wrapper.getAttribute('data-scale')) || 1;
+  document.getElementById('item-scale').value = scale;
+  document.getElementById('scale-val').textContent = scale.toFixed(1) + 'x';
+  
+  const isInv = invertConfig[id];
+  const sw = document.getElementById('item-invert');
+  isInv ? sw.classList.add('on') : sw.classList.remove('on');
+  
   document.getElementById('main-overlay').classList.add('show');
   document.getElementById('item-modal').classList.add('show');
 }
-function updateItemScale(val){
-  if(!activeItem)return; activeItem.setAttribute('data-scale',val); activeItem.style.transform=`scale(${val})`;
-  document.getElementById('scale-val').textContent=parseFloat(val).toFixed(1)+'x';
+
+function updateItemScale(val) {
+  if(!activeItem) return; 
+  activeItem.setAttribute('data-scale', val); 
+  activeItem.style.transform = `scale(${val})`;
+  document.getElementById('scale-val').textContent = parseFloat(val).toFixed(1) + 'x';
 }
-function toggleItemInvert(){
-  if(!activeItem)return; const id=activeItem.getAttribute('data-id'); invertConfig[id]=!invertConfig[id];
-  document.getElementById('item-invert').classList.toggle('on',invertConfig[id]);
+
+function toggleItemInvert() {
+  if(!activeItem) return; 
+  const id = activeItem.getAttribute('data-id'); 
+  invertConfig[id] = !invertConfig[id];
+  document.getElementById('item-invert').classList.toggle('on', invertConfig[id]);
 }
-function closeAllModals(){
+
+function closeAllModals() {
   document.getElementById('main-overlay').classList.remove('show');
-  document.querySelectorAll('.modal').forEach(m=>m.classList.remove('show')); saveConfig();
+  document.querySelectorAll('.modal').forEach(m => m.classList.remove('show')); 
+  saveConfig();
 }
-function openGyroPanel(){
-  if(editMode)toggleEditMode();
+
+function openGyroPanel() {
+  if (editMode) toggleEditMode();
   document.getElementById('main-overlay').classList.add('show');
   document.getElementById('gyro-modal').classList.add('show');
 }
-function setGyroAxis(axis){
-  gyroAxis=axis;
-  document.getElementById('seg-steer').classList.toggle('active',axis==='steer');
-  document.getElementById('seg-throttle').classList.toggle('active',axis==='throttle');
+
+function setGyroAxis(axis) {
+  gyroAxis = axis;
+  document.getElementById('seg-steer').classList.toggle('active', axis === 'steer');
+  document.getElementById('seg-throttle').classList.toggle('active', axis === 'throttle');
 }
-function toggleGyroInvert(){gyroInvert=!gyroInvert; document.getElementById('gyro-invert-sw').classList.toggle('on',gyroInvert);}
-function toggleGyro(){
-  const btn=document.getElementById('btn-gyro-toggle');
-  if(gyroOn){
-    window.removeEventListener('deviceorientation',handleGyro); gyroOn=false; rawSteer=0; rawThrottle=0;
-    btn.textContent='Activate'; btn.style.background=''; document.getElementById('btn-gyro').classList.remove('active');
-  }else{
-    if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){
-      DeviceOrientationEvent.requestPermission().then(r=>{if(r==='granted')startGyro();});
-    }else startGyro();
+
+function toggleGyroInvert() {
+  gyroInvert = !gyroInvert; 
+  document.getElementById('gyro-invert-sw').classList.toggle('on', gyroInvert);
+}
+
+function toggleGyro() {
+  const btn = document.getElementById('btn-gyro-toggle');
+  if (gyroOn) {
+    window.removeEventListener('deviceorientation', handleGyro); 
+    gyroOn = false; 
+    rawSteer = 0; 
+    rawThrottle = 0;
+    btn.textContent = 'Activate'; 
+    btn.style.background = ''; 
+    document.getElementById('btn-gyro').classList.remove('active');
+  } else {
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+      DeviceOrientationEvent.requestPermission().then(r => { if(r === 'granted') startGyro(); });
+    } else {
+      startGyro();
+    }
   }
 }
-function startGyro(){
-  window.addEventListener('deviceorientation',handleGyro); gyroOn=true;
-  const btn=document.getElementById('btn-gyro-toggle'); btn.textContent='Deactivate'; btn.style.background='var(--danger)';
+
+function startGyro() {
+  window.addEventListener('deviceorientation', handleGyro); 
+  gyroOn = true;
+  const btn = document.getElementById('btn-gyro-toggle'); 
+  btn.textContent = 'Deactivate'; 
+  btn.style.background = 'var(--danger)';
   document.getElementById('btn-gyro').classList.add('active');
 }
-function handleGyro(e){
-  currentRawBeta=e.beta||0; currentRawGamma=e.gamma||0; if(!gyroOn)return;
-  let isLand=window.innerWidth>window.innerHeight;
-  let rawTilt=isLand?currentRawBeta:currentRawGamma;
-  if(screen.orientation?.angle===-90||window.orientation===-90)rawTilt=-rawTilt;
-  let tilt=rawTilt-centerTilt; if(gyroInvert)tilt=-tilt;
-  document.getElementById('gyro-angle').textContent=Math.round(tilt)+'°';
-  const dead=5; let g=Math.abs(tilt)<dead?0:tilt-Math.sign(tilt)*dead;
-  let val=Math.max(-100,Math.min(100,Math.round(g*2.5)));
-  if(gyroAxis==='steer')rawSteer=val; else rawThrottle=val;
+
+function handleGyro(e) {
+  currentRawBeta = e.beta || 0; 
+  currentRawGamma = e.gamma || 0; 
+  if(!gyroOn) return;
+  
+  let isLand = window.innerWidth > window.innerHeight;
+  let rawTilt = isLand ? currentRawBeta : currentRawGamma;
+  if(screen.orientation?.angle === -90 || window.orientation === -90) rawTilt = -rawTilt;
+  
+  let tilt = rawTilt - centerTilt; 
+  if(gyroInvert) tilt = -tilt;
+  
+  document.getElementById('gyro-angle').textContent = Math.round(tilt) + '°';
+  
+  const dead = 5; 
+  let g = Math.abs(tilt) < dead ? 0 : tilt - Math.sign(tilt)*dead;
+  let val = Math.max(-100, Math.min(100, Math.round(g * 2.5)));
+  
+  if (gyroAxis === 'steer') rawSteer = val; 
+  else rawThrottle = val;
 }
-function calibrateGyro(){
-  let isLand=window.innerWidth>window.innerHeight; let rawTilt=isLand?currentRawBeta:currentRawGamma;
-  if(screen.orientation?.angle===-90||window.orientation===-90)rawTilt=-rawTilt;
-  centerTilt=rawTilt; const t=document.getElementById('gyro-angle'); const old=t.textContent;
-  t.textContent='SET ✓'; t.style.color='var(--success)'; setTimeout(()=>{t.style.color='';},1000);
+
+function calibrateGyro() {
+  let isLand = window.innerWidth > window.innerHeight; 
+  let rawTilt = isLand ? currentRawBeta : currentRawGamma;
+  if(screen.orientation?.angle === -90 || window.orientation === -90) rawTilt = -rawTilt;
+  
+  centerTilt = rawTilt; 
+  const t = document.getElementById('gyro-angle'); 
+  t.textContent = 'SET ✓'; 
+  t.style.color = 'var(--success)'; 
+  setTimeout(() => { t.style.color = ''; }, 1000);
 }
-window.addEventListener('deviceorientation',e=>{currentRawBeta=e.beta||0; currentRawGamma=e.gamma||0;});
-async function openCamera(){
-  if(editMode)toggleEditMode();
-  document.getElementById('cam-panel').classList.add('show'); gestureMode=true;
-  try{
-    cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:640,height:480}});
-    const video=document.getElementById('cam-video'); video.srcObject=cameraStream; await video.play(); loadHandModel(video);
-  }catch(e){document.getElementById('gesture-txt').textContent="Camera Denied";}
-}
-function closeCamera(){
-  gestureMode=false; document.getElementById('cam-panel').classList.remove('show');
-  if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop()); cameraStream=null;} rawThrottle=rawSteer=0;
-}
-async function loadHandModel(video){
-  if(!window.Hands){
-    document.getElementById('gesture-txt').textContent="Loading AI Module...";
-    await new Promise(r=>{const s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/hands.js'; s.onload=r; document.head.appendChild(s);});
-    await new Promise(r=>{const s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.js'; s.onload=r; document.head.appendChild(s);});
+
+window.addEventListener('deviceorientation', e => {
+  currentRawBeta = e.beta || 0; 
+  currentRawGamma = e.gamma || 0;
+});
+
+async function openCamera() {
+  if(editMode) toggleEditMode();
+  document.getElementById('cam-panel').classList.add('show'); 
+  gestureMode = true;
+  
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user', width:640, height:480}});
+    const video = document.getElementById('cam-video'); 
+    video.srcObject = cameraStream; 
+    await video.play(); 
+    loadHandModel(video);
+  } catch(e) { 
+    document.getElementById('gesture-txt').textContent = "Camera Denied"; 
   }
-  const canvas=document.getElementById('cam-canvas'),ctx=canvas.getContext('2d');
-  handsModel=new Hands({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/${f}`});
-  handsModel.setOptions({maxNumHands:1,modelComplexity:0,minDetectionConfidence:0.7,minTrackingConfidence:0.5});
-  document.getElementById('gesture-txt').textContent="Show Fingers";
-  handsModel.onResults(res=>{
-    canvas.width=video.videoWidth; canvas.height=video.videoHeight; ctx.clearRect(0,0,canvas.width,canvas.height);
-    if(res.multiHandLandmarks?.length>0){
-      const lm=res.multiHandLandmarks[0]; drawHand(ctx,lm,canvas.width,canvas.height);
-      let count=0; const dist=(a,b)=>Math.hypot(lm[a].x-lm[b].x,lm[a].y-lm[b].y);
-      if(dist(4,17)>dist(3,17))count++;
-      [8,12,16,20].forEach((tip,i)=>{if(lm[tip].y<lm[[6,10,14,18][i]].y-0.02)count++;});
-      if(count!==lastFingers){
-        lastFingers=count; rawThrottle=rawSteer=0; document.getElementById('finger-count').textContent=count;
-        if(count===1){rawThrottle=100; document.getElementById('gesture-txt').textContent="Forward";}
-        else if(count===2){rawThrottle=-100; document.getElementById('gesture-txt').textContent="Reverse";}
-        else if(count===3){rawSteer=-100; document.getElementById('gesture-txt').textContent="Left";}
-        else if(count===4){rawSteer=100; document.getElementById('gesture-txt').textContent="Right";}
-        else{document.getElementById('gesture-txt').textContent="Stop";}
+}
+
+function closeCamera() {
+  gestureMode = false; 
+  document.getElementById('cam-panel').classList.remove('show');
+  if(cameraStream) { 
+    cameraStream.getTracks().forEach(t => t.stop()); 
+    cameraStream = null;
+  } 
+  rawThrottle = rawSteer = 0;
+}
+
+async function loadHandModel(video) {
+  if (!window.Hands) {
+    document.getElementById('gesture-txt').textContent = "Loading AI Module...";
+    await new Promise(r => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/hands.js'; s.onload = r; document.head.appendChild(s); });
+    await new Promise(r => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.js'; s.onload = r; document.head.appendChild(s); });
+  }
+  
+  const canvas = document.getElementById('cam-canvas'), ctx = canvas.getContext('2d');
+  handsModel = new Hands({locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/${f}`});
+  handsModel.setOptions({maxNumHands:1, modelComplexity:0, minDetectionConfidence:0.7, minTrackingConfidence:0.5});
+  document.getElementById('gesture-txt').textContent = "Show Fingers";
+  
+  handsModel.onResults(res => {
+    canvas.width = video.videoWidth; 
+    canvas.height = video.videoHeight; 
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    if (res.multiHandLandmarks?.length > 0) {
+      const lm = res.multiHandLandmarks[0]; 
+      drawHand(ctx, lm, canvas.width, canvas.height);
+      
+      let count = 0; 
+      const dist = (a, b) => Math.hypot(lm[a].x - lm[b].x, lm[a].y - lm[b].y);
+      if (dist(4, 17) > dist(3, 17)) count++;
+      [8, 12, 16, 20].forEach((tip, i) => { if(lm[tip].y < lm[[6, 10, 14, 18][i]].y - 0.02) count++; });
+      
+      if (count !== lastFingers) {
+        lastFingers = count; 
+        rawThrottle = rawSteer = 0; 
+        document.getElementById('finger-count').textContent = count;
+        
+        if (count === 1) { rawThrottle = 100; document.getElementById('gesture-txt').textContent = "Forward"; }
+        else if(count === 2) { rawThrottle = -100; document.getElementById('gesture-txt').textContent = "Reverse"; }
+        else if(count === 3) { rawSteer = -100; document.getElementById('gesture-txt').textContent = "Left"; }
+        else if(count === 4) { rawSteer = 100; document.getElementById('gesture-txt').textContent = "Right"; }
+        else { document.getElementById('gesture-txt').textContent = "Stop"; }
       }
-    }else{lastFingers=-1; rawThrottle=rawSteer=0; document.getElementById('finger-count').textContent="-"; document.getElementById('gesture-txt').textContent="Hand Lost";}
+    } else { 
+      lastFingers = -1; 
+      rawThrottle = rawSteer = 0; 
+      document.getElementById('finger-count').textContent = "-"; 
+      document.getElementById('gesture-txt').textContent = "Hand Lost"; 
+    }
   });
-  new Camera(video,{onFrame:async()=>{await handsModel.send({image:video});},width:640,height:480}).start();
+  
+  new Camera(video, {onFrame: async () => { await handsModel.send({image:video}); }, width:640, height:480}).start();
 }
-function drawHand(ctx,lm,w,h){
-  ctx.strokeStyle='#3b82f6'; ctx.lineWidth=4;
-  [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[0,9],[9,10],[10,11],[11,12],[0,13],[13,14],[14,15],[15,16],[0,17],[17,18],[18,19],[19,20],[5,9],[9,13],[13,17]].forEach(([a,b])=>{
-    ctx.beginPath(); ctx.moveTo(lm[a].x*w,lm[a].y*h); ctx.lineTo(lm[b].x*w,lm[b].y*h); ctx.stroke();
+
+function drawHand(ctx, lm, w, h) {
+  ctx.strokeStyle = '#3b82f6'; 
+  ctx.lineWidth = 4;
+  [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[0,9],[9,10],[10,11],[11,12],[0,13],[13,14],[14,15],[15,16],[0,17],[17,18],[18,19],[19,20],[5,9],[9,13],[13,17]].forEach(([a,b]) => {
+    ctx.beginPath(); 
+    ctx.moveTo(lm[a].x * w, lm[a].y * h); 
+    ctx.lineTo(lm[b].x * w, lm[b].y * h); 
+    ctx.stroke();
   });
-  lm.forEach(p=>{ctx.beginPath(); ctx.arc(p.x*w,p.y*h,6,0,Math.PI*2); ctx.fillStyle='#fff'; ctx.fill();});
+  lm.forEach(p => { 
+    ctx.beginPath(); 
+    ctx.arc(p.x * w, p.y * h, 6, 0, Math.PI * 2); 
+    ctx.fillStyle = '#fff'; 
+    ctx.fill(); 
+  });
 }
-async function goFullscreen(){
-  if(!document.fullscreenElement){await document.documentElement.requestFullscreen?.().catch(()=>{}); screen.orientation?.lock('landscape').catch(()=>{});}
-  else document.exitFullscreen?.();
+
+async function goFullscreen() {
+  if (!document.fullscreenElement) { 
+    await document.documentElement.requestFullscreen?.().catch(()=>{}); 
+    screen.orientation?.lock('landscape').catch(()=>{}); 
+  } else {
+    document.exitFullscreen?.();
+  }
 }
-window.addEventListener('gamepadconnected',()=>{setInterval(()=>{
-  const p=navigator.getGamepads()[0]; if(!p)return;
-  const L2=p.buttons[6]?.value||0; const R2=p.buttons[7]?.value||0;
-  rawThrottle=Math.round((R2-L2)*100); rawSteer=Math.round(p.axes[0]*100);
-},50);});
+
+window.addEventListener('gamepadconnected', () => { 
+  setInterval(() => {
+    const p = navigator.getGamepads()[0]; 
+    if(!p) return;
+    const L2 = p.buttons[6]?.value || 0; 
+    const R2 = p.buttons[7]?.value || 0;
+    rawThrottle = Math.round((R2 - L2) * 100); 
+    rawSteer = Math.round(p.axes[0] * 100);
+  }, 50);
+});
+
 loadConfig();
-setInterval(()=>{if(!connected&&!editMode)updateUI(rawThrottle);},100);
+
+setInterval(() => { 
+  if(!connected && !editMode) updateUI(rawThrottle); 
+}, 100);
+
 </script>
 </body>
 </html>
