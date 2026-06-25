@@ -20,6 +20,7 @@
   --primary: #3b82f6;
   --success: #10b981;
   --danger: #ef4444;
+  --warning: #f59e0b;
   --shadow-sm: 0 4px 12px rgba(0,0,0,0.3);
   --shadow-lg: 0 16px 40px rgba(0,0,0,0.6);
 }
@@ -266,7 +267,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px;
 
 <script>
 let ws = null, connected = false, sendInterval = null;
-let ESP_IP = localStorage.getItem('esp_ip') || 'rccar.local';
+let ESP_IP = localStorage.getItem('esp_ip') || '192.168.10.149';
 
 let rawThrottle = 0, rawSteer = 0; 
 let invertConfig = { steer: false, throttle: false };
@@ -319,30 +320,57 @@ function toggleConnect() {
     return; 
   }
   
-  let inputIP = prompt("Enter ESP32 IP Address or Hostname:", ESP_IP);
+  let inputIP = prompt("Enter ESP32 IP Address:", ESP_IP);
   if(!inputIP) return;
   ESP_IP = inputIP;
   localStorage.setItem('esp_ip', ESP_IP);
 
-  document.getElementById('conn-text').textContent = 'Connecting...';
+  const btn = document.getElementById('connect-btn');
+  const txt = document.getElementById('conn-text');
+  
+  txt.textContent = 'Connecting...';
+  btn.style.borderColor = 'var(--warning)';
+  
+  let connTimeout = setTimeout(() => {
+    if(!connected) {
+      if(ws) ws.close();
+      txt.textContent = 'Failed!';
+      btn.style.borderColor = 'var(--danger)';
+      setTimeout(() => { if(!connected) { txt.textContent = 'Connect'; btn.style.borderColor = 'var(--border)'; } }, 2000);
+    }
+  }, 3000);
 
   try {
     ws = new WebSocket(`ws://${ESP_IP}/ws`);
     ws.onopen = () => {
+      clearTimeout(connTimeout);
       connected = true;
-      document.getElementById('connect-btn').classList.add('connected');
-      document.getElementById('conn-text').textContent = ESP_IP;
+      btn.classList.add('connected');
+      btn.style.borderColor = '';
+      txt.textContent = ESP_IP;
       clearInterval(sendInterval);
       sendInterval = setInterval(sendData, 50);
     };
     ws.onclose = ws.onerror = () => {
+      clearTimeout(connTimeout);
+      if(connected) {
+         txt.textContent = 'Disconnected';
+         btn.style.borderColor = 'var(--danger)';
+         setTimeout(() => { if(!connected) { txt.textContent = 'Connect'; btn.style.borderColor = 'var(--border)'; } }, 2000);
+      } else {
+         txt.textContent = 'Failed!';
+         btn.style.borderColor = 'var(--danger)';
+         setTimeout(() => { if(!connected) { txt.textContent = 'Connect'; btn.style.borderColor = 'var(--border)'; } }, 2000);
+      }
       connected = false; ws = null; clearInterval(sendInterval);
       rawThrottle = rawSteer = 0; updateUI();
-      document.getElementById('connect-btn').classList.remove('connected');
-      document.getElementById('conn-text').textContent = 'Connect';
+      btn.classList.remove('connected');
     };
   } catch(e) {
-    document.getElementById('conn-text').textContent = 'Connect';
+    clearTimeout(connTimeout);
+    txt.textContent = 'Error!';
+    btn.style.borderColor = 'var(--danger)';
+    setTimeout(() => { if(!connected) { txt.textContent = 'Connect'; btn.style.borderColor = 'var(--border)'; } }, 2000);
   }
 }
 
