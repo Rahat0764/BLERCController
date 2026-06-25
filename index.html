@@ -698,6 +698,11 @@
 </div>
 
 <script>
+// --- BLE CONFIGURATION FOR YOUR ESP32 ---
+const SVC_UUID  = '12345678-1234-1234-1234-123456789abc';
+const CHAR_UUID = 'abcdefab-cdef-abcd-efab-cdefabcdefab';
+const DEVICE_NAME = 'RC-Car';
+
 let bleDevice = null;
 let bleCharacteristic = null;
 let connected = false;
@@ -739,7 +744,7 @@ function showToast(msg, isError = false) {
   toast.textContent = msg;
 
   document.body.appendChild(toast);
-  
+
   setTimeout(() => toast.classList.add('show'), 10);
   setTimeout(() => {
     toast.classList.remove('show');
@@ -754,7 +759,7 @@ function saveConfig() {
     gyroAxis: gyroAxis,
     swap: swapControls 
   };
-  
+
   ['joy-steer-wrap', 'joy-throttle-wrap'].forEach(id => {
     const el = document.getElementById(id);
     d[id] = { 
@@ -774,7 +779,7 @@ function loadConfig() {
       gyroInvert = !!d.gyroInvert; 
       gyroAxis = d.gyroAxis || 'steer';
       swapControls = !!d.swap;
-      
+
       document.getElementById('swap-state').textContent = swapControls ? 'ON' : 'OFF';
 
       if(gyroInvert) document.getElementById('gyro-invert-sw').classList.add('on');
@@ -820,28 +825,30 @@ async function toggleConnect() {
 
   try {
     txt.textContent = 'Pairing...';
-    
+
+    // Match your ESP32 Code
     bleDevice = await navigator.bluetooth.requestDevice({
-      filters: [{ name: 'RC-Car-BLE' }],
-      optionalServices: ['19b10000-e8f2-537e-4f6c-d104768a1214']
+      filters: [{ name: DEVICE_NAME }],
+      optionalServices: [SVC_UUID]
     });
 
     bleDevice.addEventListener('gattserverdisconnected', onDisconnect);
     const server = await bleDevice.gatt.connect();
-    const service = await server.getPrimaryService('19b10000-e8f2-537e-4f6c-d104768a1214');
-    bleCharacteristic = await service.getCharacteristic('19b10001-e8f2-537e-4f6c-d104768a1214');
+    const service = await server.getPrimaryService(SVC_UUID);
+    bleCharacteristic = await service.getCharacteristic(CHAR_UUID);
 
     connected = true; 
     btn.classList.add('connected'); 
     txt.textContent = 'Connected';
-    
+
     showToast("Successfully Connected!");
 
-    // Data sending optimized to 80ms to avoid BLE channel congestion
+    // Data sending optimized to 50ms for smoother control
     clearInterval(sendInterval); 
-    sendInterval = setInterval(sendData, 80);
+    sendInterval = setInterval(sendData, 50);
 
   } catch(e) {
+    console.error(e);
     txt.textContent = 'Failed';
     showToast("Connection Failed or Canceled.", true);
     setTimeout(() => txt.textContent = 'Connect', 2000);
@@ -853,11 +860,11 @@ function onDisconnect() {
   bleCharacteristic = null; 
   rawThrottle = rawSteer = 0; 
   updateUI();
-  
+
   document.getElementById('connect-btn').classList.remove('connected');
   document.getElementById('conn-text').textContent = 'Connect';
   showToast("Device Disconnected", true);
-  
+
   clearInterval(sendInterval);
 }
 
@@ -874,9 +881,11 @@ async function sendData() {
     s = temp;
   }
 
+  // Tank mix logic equivalent to your previous setup (t+s and t-s)
   let L = Math.max(-100, Math.min(100, t + s));
   let R = Math.max(-100, Math.min(100, t - s));
   let val = `${L},${R}`;
+  
   if (val === lastSentValue && L === 0 && R === 0) return;
   isWriting = true;
   try {
@@ -885,7 +894,7 @@ async function sendData() {
     lastSentValue = val;
   } catch(e) {}
   isWriting = false;
-  
+
   updateUI(swapControls ? s : rawThrottle);
 }
 
@@ -903,11 +912,11 @@ function setupJoystick(wrapper, base, knob, axis) {
     if (editMode) return;
     active = true; 
     touchId = id;
-    
+
     const rect = base.getBoundingClientRect();
     cx = rect.left + rect.width / 2; 
     cy = rect.top + rect.height / 2;
-    
+
     knob.classList.remove('spring-back');
     base.classList.add('active');
     move(px, py);
@@ -915,7 +924,7 @@ function setupJoystick(wrapper, base, knob, axis) {
 
   function move(px, py) {
     if (!active) return;
-    
+
     const scale = parseFloat(wrapper.getAttribute('data-scale')) || 1;
     const dx = (px - cx) / scale; 
     const dy = (py - cy) / scale;
@@ -923,15 +932,15 @@ function setupJoystick(wrapper, base, knob, axis) {
     const R = RADIUS();
     const clamped = Math.min(dist, R);
     const angle = Math.atan2(dy, dx);
-    
+
     const kx = Math.cos(angle) * clamped; 
     const ky = Math.sin(angle) * clamped;
-    
+
     knob.style.transform = `translate(${kx}px, ${ky}px)`;
-    
+
     let nx = kx / R; 
     let ny = -ky / R;
-    
+
     if (axis === 'steer' && !(gyroOn && gyroAxis === 'steer')) {
       rawSteer = Math.round(nx * 100);
     } else if (axis === 'throttle' && !(gyroOn && gyroAxis === 'throttle')) {
@@ -943,14 +952,14 @@ function setupJoystick(wrapper, base, knob, axis) {
   function end() {
     active = false; 
     touchId = null;
-    
+
     knob.classList.add('spring-back');
     knob.style.transform = `translate(0px, 0px)`;
     base.classList.remove('active', 'active-rev');
-    
+
     if (axis === 'steer' && !(gyroOn && gyroAxis === 'steer')) rawSteer = 0;
     if (axis === 'throttle' && !(gyroOn && gyroAxis === 'throttle')) rawThrottle = 0;
-    
+
     // Ensure we send zero state immediately upon release
     if (connected && !isWriting) {
         lastSentValue = ""; // force send
@@ -963,7 +972,7 @@ function setupJoystick(wrapper, base, knob, axis) {
       start(e.changedTouches[0].clientX, e.changedTouches[0].clientY, e.changedTouches[0].identifier); 
     } 
   }, { passive: false });
-  
+
   document.addEventListener('touchmove', e => { 
     if(!active) return; 
     for(let t of e.changedTouches) { 
@@ -973,14 +982,14 @@ function setupJoystick(wrapper, base, knob, axis) {
       }
     }
   }, { passive: false });
-  
+
   document.addEventListener('touchend', e => { 
     if(!active) return; 
     for(let t of e.changedTouches) { 
       if(t.identifier === touchId) end(); 
     }
   });
-  
+
   document.addEventListener('touchcancel', () => { 
     if(active) end(); 
   });
@@ -993,11 +1002,11 @@ function toggleEditMode() {
   editMode = !editMode;
   document.getElementById('btn-edit').classList.toggle('active-edit', editMode);
   document.getElementById('edit-banner').style.display = editMode ? 'flex' : 'none';
-  
+
   document.querySelectorAll('.draggable').forEach(el => {
     el.classList.toggle('editing', editMode);
   });
-  
+
   if (!editMode) saveConfig();
 }
 
@@ -1031,15 +1040,15 @@ document.querySelectorAll('.draggable').forEach(wrapper => {
 function openItemModal(wrapper) {
   const id = wrapper.getAttribute('data-id');
   document.getElementById('item-modal-title').textContent = (id === 'steer' ? 'Steering' : 'Throttle') + ' Config';
-  
+
   const scale = parseFloat(wrapper.getAttribute('data-scale')) || 1;
   document.getElementById('item-scale').value = scale;
   document.getElementById('scale-val').textContent = scale.toFixed(1) + 'x';
-  
+
   const isInv = invertConfig[id];
   const sw = document.getElementById('item-invert');
   isInv ? sw.classList.add('on') : sw.classList.remove('on');
-  
+
   document.getElementById('main-overlay').classList.add('show');
   document.getElementById('item-modal').classList.add('show');
 }
@@ -1113,20 +1122,20 @@ function handleGyro(e) {
   currentRawBeta = e.beta || 0; 
   currentRawGamma = e.gamma || 0; 
   if(!gyroOn) return;
-  
+
   let isLand = window.innerWidth > window.innerHeight;
   let rawTilt = isLand ? currentRawBeta : currentRawGamma;
   if(screen.orientation?.angle === -90 || window.orientation === -90) rawTilt = -rawTilt;
-  
+
   let tilt = rawTilt - centerTilt; 
   if(gyroInvert) tilt = -tilt;
-  
+
   document.getElementById('gyro-angle').textContent = Math.round(tilt) + '°';
-  
+
   const dead = 5; 
   let g = Math.abs(tilt) < dead ? 0 : tilt - Math.sign(tilt)*dead;
   let val = Math.max(-100, Math.min(100, Math.round(g * 2.5)));
-  
+
   if (gyroAxis === 'steer') rawSteer = val; 
   else rawThrottle = val;
 }
@@ -1135,7 +1144,7 @@ function calibrateGyro() {
   let isLand = window.innerWidth > window.innerHeight; 
   let rawTilt = isLand ? currentRawBeta : currentRawGamma;
   if(screen.orientation?.angle === -90 || window.orientation === -90) rawTilt = -rawTilt;
-  
+
   centerTilt = rawTilt; 
   const t = document.getElementById('gyro-angle'); 
   t.textContent = 'SET ✓'; 
@@ -1152,7 +1161,7 @@ async function openCamera() {
   if(editMode) toggleEditMode();
   document.getElementById('cam-panel').classList.add('show'); 
   gestureMode = true;
-  
+
   try {
     cameraStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user', width:640, height:480}});
     const video = document.getElementById('cam-video'); 
@@ -1180,31 +1189,31 @@ async function loadHandModel(video) {
     await new Promise(r => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/hands.js'; s.onload = r; document.head.appendChild(s); });
     await new Promise(r => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.js'; s.onload = r; document.head.appendChild(s); });
   }
-  
+
   const canvas = document.getElementById('cam-canvas'), ctx = canvas.getContext('2d');
   handsModel = new Hands({locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/${f}`});
   handsModel.setOptions({maxNumHands:1, modelComplexity:0, minDetectionConfidence:0.7, minTrackingConfidence:0.5});
   document.getElementById('gesture-txt').textContent = "Show Fingers";
-  
+
   handsModel.onResults(res => {
     canvas.width = video.videoWidth; 
     canvas.height = video.videoHeight; 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
     if (res.multiHandLandmarks?.length > 0) {
       const lm = res.multiHandLandmarks[0]; 
       drawHand(ctx, lm, canvas.width, canvas.height);
-      
+
       let count = 0; 
       const dist = (a, b) => Math.hypot(lm[a].x - lm[b].x, lm[a].y - lm[b].y);
       if (dist(4, 17) > dist(3, 17)) count++;
       [8, 12, 16, 20].forEach((tip, i) => { if(lm[tip].y < lm[[6, 10, 14, 18][i]].y - 0.02) count++; });
-      
+
       if (count !== lastFingers) {
         lastFingers = count; 
         rawThrottle = rawSteer = 0; 
         document.getElementById('finger-count').textContent = count;
-        
+
         if (count === 1) { rawThrottle = 100; document.getElementById('gesture-txt').textContent = "Forward"; }
         else if(count === 2) { rawThrottle = -100; document.getElementById('gesture-txt').textContent = "Reverse"; }
         else if(count === 3) { rawSteer = -100; document.getElementById('gesture-txt').textContent = "Left"; }
@@ -1218,7 +1227,7 @@ async function loadHandModel(video) {
       document.getElementById('gesture-txt').textContent = "Hand Lost"; 
     }
   });
-  
+
   new Camera(video, {onFrame: async () => { await handsModel.send({image:video}); }, width:640, height:480}).start();
 }
 
