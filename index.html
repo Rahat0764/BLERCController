@@ -266,7 +266,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px;
 
 <script>
 let ws = null, connected = false, sendInterval = null;
-const ESP_IP = '192.168.4.1';
+let ESP_IP = localStorage.getItem('esp_ip') || 'rccar.local';
 
 let rawThrottle = 0, rawSteer = 0; 
 let invertConfig = { steer: false, throttle: false };
@@ -314,13 +314,24 @@ function resetLayout() {
 }
 
 function toggleConnect() {
-  if (connected) { ws && ws.close(); return; }
+  if (connected) { 
+    ws && ws.close(); 
+    return; 
+  }
+  
+  let inputIP = prompt("Enter ESP32 IP Address or Hostname:", ESP_IP);
+  if(!inputIP) return;
+  ESP_IP = inputIP;
+  localStorage.setItem('esp_ip', ESP_IP);
+
+  document.getElementById('conn-text').textContent = 'Connecting...';
+
   try {
     ws = new WebSocket(`ws://${ESP_IP}/ws`);
     ws.onopen = () => {
       connected = true;
       document.getElementById('connect-btn').classList.add('connected');
-      document.getElementById('conn-text').textContent = 'Connected';
+      document.getElementById('conn-text').textContent = ESP_IP;
       clearInterval(sendInterval);
       sendInterval = setInterval(sendData, 50);
     };
@@ -330,7 +341,9 @@ function toggleConnect() {
       document.getElementById('connect-btn').classList.remove('connected');
       document.getElementById('conn-text').textContent = 'Connect';
     };
-  } catch(e) {}
+  } catch(e) {
+    document.getElementById('conn-text').textContent = 'Connect';
+  }
 }
 
 function sendData() {
