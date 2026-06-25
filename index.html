@@ -882,7 +882,7 @@ async function sendData() {
   try {
     const buf = new Int8Array([L, R]);
     await bleCharacteristic.writeValueWithoutResponse(buf.buffer);
-  lastSentValue = val;
+    lastSentValue = val;
   } catch(e) {}
   isWriting = false;
   
