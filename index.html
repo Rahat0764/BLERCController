@@ -8,7 +8,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>RC Premium Controller</title>
 <style>
-/* ── Clean Modern Fonts ── */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
@@ -18,9 +17,9 @@
   --border: rgba(255, 255, 255, 0.08);
   --text-main: #f3f4f6;
   --text-muted: #9ca3af;
-  --primary: #3b82f6; /* Elegant Blue */
-  --success: #10b981; /* Soft Green */
-  --danger: #ef4444;  /* Soft Red */
+  --primary: #3b82f6;
+  --success: #10b981;
+  --danger: #ef4444;
   --shadow-sm: 0 4px 12px rgba(0,0,0,0.3);
   --shadow-lg: 0 16px 40px rgba(0,0,0,0.6);
 }
@@ -28,10 +27,8 @@
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { width: 100vw; height: 100vh; background: var(--bg-color); overflow: hidden; font-family: 'Inter', sans-serif; user-select: none; color: var(--text-main); touch-action: none; }
 
-/* Subtle Background Gradient */
 body::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at top, rgba(59, 130, 246, 0.05) 0%, transparent 70%); pointer-events: none; z-index: 0; }
 
-/* ── TOP NAVIGATION ── */
 #top-nav {
   position: fixed; top: 0; left: 0; right: 0; height: max(60px, env(safe-area-inset-top));
   display: flex; align-items: center; justify-content: space-between;
@@ -41,7 +38,6 @@ body::before { content: ''; position: absolute; inset: 0; background: radial-gra
 }
 .nav-group { display: flex; align-items: center; gap: 12px; pointer-events: auto; }
 
-/* Clean Connect Button */
 #connect-btn {
   display: flex; align-items: center; gap: 10px; background: var(--surface-glass);
   border: 1px solid var(--border); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -55,7 +51,6 @@ body::before { content: ''; position: absolute; inset: 0; background: radial-gra
 #connect-btn.connected .status-dot { background: var(--success); box-shadow: 0 0 10px var(--success); }
 #connect-btn.connected .status-text { color: var(--success); }
 
-/* Tool Buttons */
 .tool-btn {
   width: 42px; height: 42px; border-radius: 50%; background: var(--surface-glass); border: 1px solid var(--border);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: var(--text-main);
@@ -66,7 +61,6 @@ body::before { content: ''; position: absolute; inset: 0; background: radial-gra
 .tool-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
 .tool-btn.active-edit { background: var(--surface); border-color: var(--text-main); }
 
-/* ── HUD CENTER DISPLAY ── */
 .hud-display {
   position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
   display: flex; flex-direction: column; align-items: center; pointer-events: none; z-index: 10;
@@ -76,7 +70,6 @@ body::before { content: ''; position: absolute; inset: 0; background: radial-gra
 .speed-number.reverse { color: var(--danger); }
 .speed-label { font-size: 12px; font-weight: 500; letter-spacing: 4px; color: rgba(255,255,255,0.3); margin-top: 8px; }
 
-/* ── PREMIUM JOYSTICKS ── */
 .draggable { position: fixed; z-index: 50; display: flex; align-items: center; justify-content: center; transform-origin: center; }
 .draggable.editing { cursor: move; z-index: 200; animation: editPulse 2s infinite; }
 @keyframes editPulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
@@ -98,7 +91,6 @@ body::before { content: ''; position: absolute; inset: 0; background: radial-gra
 .spring-back { transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 .joystick-title { position: absolute; bottom: -35px; font-size: 11px; font-weight: 600; letter-spacing: 2px; color: var(--text-muted); opacity: 0.5; }
 
-/* ── MODALS & MENUS ── */
 .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 290; opacity: 0; pointer-events: none; transition: 0.2s; }
 .overlay.show { opacity: 1; pointer-events: auto; }
 
@@ -118,22 +110,18 @@ body::before { content: ''; position: absolute; inset: 0; background: radial-gra
 .menu-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
 .menu-label { font-size: 13px; font-weight: 500; color: var(--text-muted); }
 
-/* Segmented Control (Radio) */
 .segmented-control { display: flex; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 4px; gap: 4px; }
 .segment-btn { flex: 1; padding: 8px 0; border: none; background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: 0.2s; }
 .segment-btn.active { background: var(--surface-glass); color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 
-/* iOS style Switch */
 .switch { position: relative; width: 44px; height: 24px; border-radius: 12px; background: rgba(255,255,255,0.1); cursor: pointer; transition: 0.3s; }
 .switch.on { background: var(--success); }
 .switch-knob { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
 .switch.on .switch-knob { left: 22px; }
 
-/* Custom Slider */
 input[type=range] { -webkit-appearance: none; width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; outline: none; margin: 10px 0; }
 input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.3); cursor: pointer; }
 
-/* Primary Button */
 .btn-primary {
   width: 100%; padding: 14px; background: var(--primary); border: none; color: #fff;
   font-size: 13px; font-weight: 600; letter-spacing: 1px; border-radius: 12px;
@@ -143,7 +131,6 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px;
 .btn-outline { background: transparent; border: 1px solid var(--border); box-shadow: none; color: var(--text-main); }
 .btn-outline:active { background: rgba(255,255,255,0.05); }
 
-/* ── EDIT MODE BANNER ── */
 #edit-banner {
   position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
   background: rgba(13,15,18,0.9); border: 1px solid var(--border); padding: 8px 16px; border-radius: 100px;
@@ -152,7 +139,6 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px;
 .edit-hint { font-size: 12px; font-weight: 500; color: var(--text-muted); }
 .reset-btn { font-size: 11px; background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 6px 12px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
 
-/* ── CAMERA ── */
 #cam-panel { position: fixed; inset: 0; background: #000; z-index: 400; display: none; flex-direction: column; align-items: center; justify-content: center; }
 #cam-panel.show { display: flex; }
 #cam-video, #cam-canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
@@ -163,7 +149,6 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px;
 </head>
 <body>
 
-<!-- TOP NAVIGATION -->
 <div id="top-nav">
   <div class="nav-group">
     <div id="connect-btn" onclick="toggleConnect()">
@@ -188,23 +173,19 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px;
   </div>
 </div>
 
-<!-- EDIT MODE BANNER -->
 <div id="edit-banner">
   <span class="edit-hint">Tap a joystick to customize</span>
   <button class="reset-btn" onclick="resetLayout()">Reset Layout</button>
   <button class="tool-btn active-edit" style="width: 32px; height: 32px;" onclick="toggleEditMode()"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></button>
 </div>
 
-<!-- HUD -->
 <div class="hud-display">
   <div class="speed-number" id="hud-speed">0</div>
   <div class="speed-label">THROTTLE</div>
 </div>
 
-<!-- OVERLAY -->
 <div class="overlay" id="main-overlay" onclick="closeAllModals()"></div>
 
-<!-- ITEM SETTINGS MODAL (Appears when tapping a joystick in edit mode) -->
 <div class="modal" id="item-modal">
   <div class="modal-header">
     <span class="modal-title" id="item-modal-title">Joystick Settings</span>
@@ -227,7 +208,6 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px;
   <button class="btn-primary" onclick="closeAllModals()">Done</button>
 </div>
 
-<!-- GYROSCOPE MODAL -->
 <div class="modal" id="gyro-modal">
   <div class="modal-header">
     <span class="modal-title">Gyroscope Sensor</span>
@@ -258,7 +238,6 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px;
   </div>
 </div>
 
-<!-- CAMERA -->
 <div id="cam-panel">
   <video id="cam-video" autoplay playsinline muted></video>
   <canvas id="cam-canvas"></canvas>
@@ -271,7 +250,6 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px;
   </button>
 </div>
 
-<!-- JOYSTICKS -->
 <div class="draggable" id="joy-steer-wrap" data-id="steer" data-scale="1" style="bottom: 40px; left: 40px;">
   <div class="joystick-base" id="joy-steer-base">
     <div class="joystick-knob spring-back" id="joy-steer-knob"></div>
@@ -287,25 +265,20 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px;
 </div>
 
 <script>
-// ==================== STATE VARIABLES ====================
 let ws = null, connected = false, sendInterval = null;
 const ESP_IP = '192.168.4.1';
 
 let rawThrottle = 0, rawSteer = 0; 
 let invertConfig = { steer: false, throttle: false };
 
-// Edit Mode
 let editMode = false, activeItem = null;
 let isDragging = false, dragStartX = 0, dragStartY = 0;
 
-// Gyro
 let gyroOn = false, gyroInvert = false, gyroAxis = 'steer';
 let currentRawBeta = 0, currentRawGamma = 0, centerTilt = 0;
 
-// Camera
 let gestureMode = false, cameraStream = null, handsModel = null, lastFingers = -1;
 
-// ==================== CONFIG STORAGE ====================
 function saveConfig() {
   const d = { invert: invertConfig, gyroInvert: gyroInvert, gyroAxis: gyroAxis };
   ['joy-steer-wrap', 'joy-throttle-wrap'].forEach(id => {
@@ -340,7 +313,6 @@ function resetLayout() {
   window.location.reload();
 }
 
-// ==================== WEBSOCKET ====================
 function toggleConnect() {
   if (connected) { ws && ws.close(); return; }
   try {
@@ -378,7 +350,6 @@ function updateUI(t=0) {
   hud.className = 'speed-number ' + (t > 5 ? 'active' : (t < -5 ? 'reverse' : ''));
 }
 
-// ==================== JOYSTICK LOGIC ====================
 function setupJoystick(wrapper, base, knob, axis) {
   let active = false, touchId = null, cx = 0, cy = 0;
   const RADIUS = () => (base.offsetWidth / 2) - (knob.offsetWidth / 2);
@@ -424,7 +395,6 @@ function setupJoystick(wrapper, base, knob, axis) {
     if (axis === 'throttle' && !(gyroOn && gyroAxis === 'throttle')) rawThrottle = 0;
   }
 
-  // Operation events
   base.addEventListener('touchstart', e => { if(!editMode) { e.preventDefault(); start(e.changedTouches[0].clientX, e.changedTouches[0].clientY, e.changedTouches[0].identifier); } }, {passive:false});
   document.addEventListener('touchmove', e => { if(!active)return; for(let t of e.changedTouches){ if(t.identifier===touchId){ e.preventDefault(); move(t.clientX, t.clientY); }}}, {passive:false});
   document.addEventListener('touchend', e => { if(!active)return; for(let t of e.changedTouches){ if(t.identifier===touchId) end(); }});
@@ -434,7 +404,6 @@ function setupJoystick(wrapper, base, knob, axis) {
 setupJoystick(document.getElementById('joy-steer-wrap'), document.getElementById('joy-steer-base'), document.getElementById('joy-steer-knob'), 'steer');
 setupJoystick(document.getElementById('joy-throttle-wrap'), document.getElementById('joy-throttle-base'), document.getElementById('joy-throttle-knob'), 'throttle');
 
-// ==================== EDIT MODE LOGIC ====================
 function toggleEditMode() {
   editMode = !editMode;
   document.getElementById('btn-edit').classList.toggle('active-edit', editMode);
@@ -446,7 +415,6 @@ function toggleEditMode() {
   if (!editMode) saveConfig();
 }
 
-// Dragging and Tapping in Edit Mode
 document.querySelectorAll('.draggable').forEach(wrapper => {
   wrapper.addEventListener('touchstart', e => {
     if(!editMode) return;
@@ -467,13 +435,12 @@ document.querySelectorAll('.draggable').forEach(wrapper => {
 
   wrapper.addEventListener('touchend', e => {
     if(!editMode || activeItem !== wrapper) return;
-    if(!isDragging) openItemModal(wrapper); // It was a tap
+    if(!isDragging) openItemModal(wrapper); 
   });
 });
 
-// Item Modal
 function openItemModal(wrapper) {
-  const id = wrapper.getAttribute('data-id'); // 'steer' or 'throttle'
+  const id = wrapper.getAttribute('data-id'); 
   document.getElementById('item-modal-title').textContent = (id === 'steer' ? 'Steering' : 'Throttle') + ' Config';
   
   const scale = parseFloat(wrapper.getAttribute('data-scale')) || 1;
@@ -502,14 +469,12 @@ function toggleItemInvert() {
   document.getElementById('item-invert').classList.toggle('on', invertConfig[id]);
 }
 
-// ==================== MODALS GENERAL ====================
 function closeAllModals() {
   document.getElementById('main-overlay').classList.remove('show');
   document.querySelectorAll('.modal').forEach(m => m.classList.remove('show'));
   saveConfig();
 }
 
-// ==================== GYROSCOPE ====================
 function openGyroPanel() {
   if (editMode) toggleEditMode();
   document.getElementById('main-overlay').classList.add('show');
@@ -570,7 +535,6 @@ function handleGyro(e) {
 }
 
 function calibrateGyro() {
-  // Capture current angle and set as center offset
   let isLand = window.innerWidth > window.innerHeight;
   let rawTilt = isLand ? currentRawBeta : currentRawGamma;
   if(screen.orientation?.angle === -90 || window.orientation === -90) rawTilt = -rawTilt;
@@ -582,12 +546,10 @@ function calibrateGyro() {
   setTimeout(() => { t.style.color = ''; }, 1000);
 }
 
-// Ensure orientation updates stream
 window.addEventListener('deviceorientation', e => {
     currentRawBeta = e.beta || 0; currentRawGamma = e.gamma || 0;
 });
 
-// ==================== CAMERA / MEDIAPIPE ====================
 async function openCamera() {
   if (editMode) toggleEditMode();
   document.getElementById('cam-panel').classList.add('show'); gestureMode = true;
@@ -617,7 +579,7 @@ async function loadHandModel(video) {
 
   handsModel.onResults(res => {
     canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-    ctx.clearRect(0,0,canvas.width,canvas.height); ctx.save(); ctx.translate(canvas.width,0); ctx.scale(-1,1);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
     if (res.multiHandLandmarks?.length > 0) {
       const lm = res.multiHandLandmarks[0];
       drawHand(ctx, lm, canvas.width, canvas.height);
@@ -637,7 +599,6 @@ async function loadHandModel(video) {
         else { document.getElementById('gesture-txt').textContent = "Stop"; }
       }
     } else { lastFingers = -1; rawThrottle = rawSteer = 0; document.getElementById('finger-count').textContent = "-"; document.getElementById('gesture-txt').textContent = "Hand Lost"; }
-    ctx.restore();
   });
   new Camera(video, {onFrame: async ()=>{ await handsModel.send({image:video});}, width:640, height:480}).start();
 }
@@ -650,13 +611,11 @@ function drawHand(ctx, lm, w, h) {
   lm.forEach(p => { ctx.beginPath(); ctx.arc(p.x*w, p.y*h, 6, 0, Math.PI*2); ctx.fillStyle='#fff'; ctx.fill(); });
 }
 
-// ==================== FULLSCREEN & INIT ====================
 async function goFullscreen() {
   if (!document.fullscreenElement) { await document.documentElement.requestFullscreen?.().catch(()=>{}); screen.orientation?.lock('landscape').catch(()=>{}); }
   else document.exitFullscreen?.();
 }
 
-// PS4 Controller logic
 window.addEventListener('gamepadconnected', () => { setInterval(() => {
   const p = navigator.getGamepads()[0]; if(!p) return;
   const L2 = p.buttons[6]?.value||0; const R2 = p.buttons[7]?.value||0;
